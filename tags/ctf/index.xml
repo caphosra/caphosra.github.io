@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>CTF on caphosra note</title><link>https://caphosra.net/tags/ctf/</link><description>Recent content in CTF on caphosra note</description><generator>Hugo -- gohugo.io</generator><language>ja</language><lastBuildDate>Sun, 07 Jan 2024 20:14:04 +0900</lastBuildDate><atom:link href="https://caphosra.net/tags/ctf/index.xml" rel="self" type="application/rss+xml"/><item><title>[CTF] SECCON CTF 2023 Finals Domestic writeup</title><link>https://caphosra.net/posts/2024-01-07-seccon-final/</link><pubDate>Sun, 07 Jan 2024 20:14:04 +0900</pubDate><guid>https://caphosra.net/posts/2024-01-07-seccon-final/</guid><description>SECCON CTF 2023の国内決勝にTSGとして参加しました. 1.5問くらい解いたのでwriteupを書きたいと思います.
+Reversing: ReMOV Reversingの問題. 大量の意味のないmov, movaps命令が並んでいるバイナリが与えられ, そのバイナリが受理するFlagを考えるというもの.
+GhidraでさっとDisassembleして読もうとしたが, 当然まともに読めそうになかったのでgdbで実行しながら怪しい部分を探した. まず, 最初の方は文字列の長さを見て32文字であるかを確認する部分がある. その次に, 文字列の先頭がSECCON{であるかどうかを判定する部分と最後が}で終了しているか確認する部分がある.
+ここまでは, 適当にSECCON{AAA....A}のような長さ32の文字列を与えておけば特に問題はない. さて, ここから引数を8bytesごとにチェックするパートに入る. 具体的には8bytesを切り出して, ある固定値とxorを取ってから別の固定値と比較する操作が4回行われる. 一見, もう一度xorを取ることで容易にFlagを復号できそうだが, このままでは先頭8bytesの値がL\xbd~\xb3HN{yでなければならなくなり, これは先頭8bytesがSECCON{であることと矛盾する.
+もう一度用心深く探ってみると, 途中で不審にptraceを呼んでいる部分がある. これでgdbのようなデバッガーをattachしているかどうか判定し, その返り値によってxorをとる固定値を変更しているようである. そこで, ptraceが呼ばれた後にraxを変えてしまえば問題ないだろうと推測し, 実際うまく行った. 以下のように書けばこれを実現できる.
+gdb.execute(&amp;#39;b *0x555555555096&amp;#39;) gdb.execute(&amp;#39;c&amp;#39;) gdb.execute(&amp;#39;set $rax = 0&amp;#39;) 実際にその場で書いたソースコードはこんな感じ. 8bytesごとに答えが出てくる.
+#!/bin/python3 import gdb import re flag = b&amp;#34;SECCON{y3t_4n0th3r_m0vfuAAAAAAA}&amp;#34; gdb.execute(&amp;#39;file ./remov&amp;#39;) o = gdb.execute(f&amp;#39;starti {flag.decode()}&amp;#39;, to_string=True) print(o) gdb.execute(&amp;#39;b *0x555555555096&amp;#39;) gdb.execute(&amp;#39;b *0x555555555605&amp;#39;) gdb.execute(&amp;#39;b *0x555555555637&amp;#39;) gdb.execute(&amp;#39;b *0x55555555567d&amp;#39;) gdb.execute(&amp;#39;c&amp;#39;) gdb.execute(&amp;#39;set $rax = 0&amp;#39;) current = int.</description></item><item><title>[CTF] Nullcon HackIM 2020 writeup</title><link>https://caphosra.net/posts/hackim2020-writeup/</link><pubDate>Sun, 09 Feb 2020 17:54:45 +0900</pubDate><guid>https://caphosra.net/posts/hackim2020-writeup/</guid><description>Nullcon HackIM 2020に出たのでそのwriteupでも書こうかなーと思った次第です。
+結論から申し上げますと、解けた問題は1問です&amp;hellip;(しかも、その問題はコピペするだけ)
+ただ、そんなのではwriteupとして意味をなさないので、競技終了後も作業していました。
+結局ZeldaAdventureの最初の1問を解くことができたのでそれをここに載せます。
+問題の見た目 Unity製のGameで、このNPC(白い敵)を1体以上倒すとFlagを手に入れられる、とあります。
+Playerは剣と体当たり(接触)することでNPCにダメージを与えられますが、敵のHPがとても高く、現実的な時間に倒せないようになっています。
+やったこと UnityのWindowsでビルドした時のファイル構成は決まっています。
+特に、プログラマーが書いたコードはAssemblyCSharp.dllというファイルにコンパイルされて存在しています。
+ここで、dnSpyを使用してAssemblyCSharp.dllの中のコードを読んでみます。
+コードの森を探索していると&amp;hellip;
+// Token: 0x06000006 RID: 6 private void TakeDamage(float damage) { this.health -= damage; if (this.health &amp;lt;= 0f) { base.StartCoroutine(this.ShowSome()); base.gameObject.SetActive(false); } } ダメージを処理している部分を見つけました。
+HPが0になるとShowSomeというコールチンを回し始めるようです。
+// Token: 0x0600000A RID: 10 private IEnumerator ShowSome() { this.textbox.SetActive(true); yield return new WaitForSeconds(3f); this.textbox.SetActive(false); yield return null; yield break; } ShowSomeをみるとthis.textboxを見せるようにしているみたいです。
+これはこのTextBoxがFlagを持っているのでしょう。
+dnSpyは実はDLLを編集する事が出来るので、このthis.textboxを最初から表示させるようにコードを書き換えれば、Flagゲットです。
+Flag: REVOLUTIONSTARTSWITHME フォントがおしゃれすぎて読みにくかったです(褒めてます)
+おわりに HackIM 2020の前に無力さを感じたので、もっと勉強してから出直します&amp;hellip;
+参考 Unity-Game-Hacking</description></item></channel></rss>

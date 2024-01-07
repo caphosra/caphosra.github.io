@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Competitive programming on caphosra note</title><link>https://caphosra.net/tags/competitive-programming/</link><description>Recent content in Competitive programming on caphosra note</description><generator>Hugo -- gohugo.io</generator><language>ja</language><lastBuildDate>Sun, 08 Dec 2019 22:24:27 +0900</lastBuildDate><atom:link href="https://caphosra.net/tags/competitive-programming/index.xml" rel="self" type="application/rss+xml"/><item><title>[競プロ]役に立つCompareマクロ</title><link>https://caphosra.net/posts/comparemacro/</link><pubDate>Sun, 08 Dec 2019 22:24:27 +0900</pubDate><guid>https://caphosra.net/posts/comparemacro/</guid><description>TL;DR 任意の方法で変数を比較する型を一行で作るためのマクロ
+#define C(t, f) struct C##t { constexpr bool operator()(t const &amp;amp; a, t const &amp;amp; b) const noexcept { return f(a, b); } } structの型名とマクロ名はお好みの名前に付け直してください。
+マクロの説明 競技プログラミングで見かけるgreater&amp;lt;T&amp;gt;とless&amp;lt;T&amp;gt;という型。
+このgreater&amp;lt;T&amp;gt;は大なり記号、less&amp;lt;T&amp;gt;は小なり記号と同じ意味を持っています。
+これらは、たとえば逆順のPriorityQueueを使うときに用いられます。
+// このPriorityQueueは小さい順に出てくる priority_queue&amp;lt;int, vector&amp;lt;int&amp;gt;, greater&amp;lt;int&amp;gt;&amp;gt; pq; // この二つは同じ動作をする priority_queue&amp;lt;int, vector&amp;lt;int&amp;gt;, less&amp;lt;int&amp;gt;&amp;gt; pq; priority_queue&amp;lt;int&amp;gt; pq; しかし、これだけしかないと問題が生じます。
+たとえば、pair&amp;lt;int, int&amp;gt;型でsecondの要素が小さい順に出すPriorityQueueが必要だとします。
+この時にgreater&amp;lt;pair&amp;lt;int, int&amp;gt;&amp;gt;だとfirstの大小関係が優先され期待通りとなりません。
+ではどうすればよいか。
+struct ComparePair { constexpr bool operator()(pair&amp;lt;int, int&amp;gt; const &amp;amp; a, pair&amp;lt;int, int&amp;gt; const &amp;amp; b) const noexcept { if(a.second == b.</description></item></channel></rss>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>LLVM on caphosra note</title><link>https://caphosra.net/tags/llvm/</link><description>Recent content in LLVM on caphosra note</description><generator>Hugo -- gohugo.io</generator><language>ja</language><lastBuildDate>Sat, 03 Oct 2020 21:36:42 +0900</lastBuildDate><atom:link href="https://caphosra.net/tags/llvm/index.xml" rel="self" type="application/rss+xml"/><item><title>自作言語を作るまでに使えるツールたち</title><link>https://caphosra.net/posts/2020-10-03-original-language/</link><pubDate>Sat, 03 Oct 2020 21:36:42 +0900</pubDate><guid>https://caphosra.net/posts/2020-10-03-original-language/</guid><description>遂に、自作言語kaprinoが無事完成したのでその記念に、自作言語を実装するにあたって 使った物をこの記事で紹介したいと思います。実際に自作言語を作ろうと思っても 何から手を付けていいのか分からなくなってしまうことがあることは想像に難くないので、 その様な人への羅針盤のような記事になることを期待しています。
+ただ、それぞれの使い方まで言及すると記事の量がどえらい事になるので、使い方はいずれ書こうと思います。
+これから自作言語作る予定がある方は必見です!
+もう既に自作言語を実装した経験がある方はお手柔らかにお願いします。
+自作言語kaprinoのソースコードを管理しているrepositoryへのリンクと自作のオンラインコンパイラ(この話はまた別の記事で)です。もし良かったら見てみてください。
+Github kaprino-lang
+Kaprino Online Compiler
+まず自作言語を何故作ろうと思ったのか なぜでしょうね。
+自作言語を作る人がよく言うのは、使っている既存の言語に不満があって自分の好みにあった言語を作ってみたい、という感じでしょうが、 私が自作言語を作ろうと思った理由は、本当になんとなくです。自作言語という言葉の響きによるものだと言えるかもしれませんし、 単純に自分は気付いていないだけで言語に不満があったのかもしれません。
+これは本題ではないのでこれくらいにしておきます。
+言語を動かすまでを大雑把に把握 さて本題に入りましょう。
+これから言語を作るまでに使ったものを紹介してゆく訳ですが、そもそも私の自作言語kaprinoが どのように動いているか説明したいと思います。
+まず、kaprinoは静的な型付けの言語で、実行前にコンパイルを必要とします。
+コンパイル とはソースコードを機械語に変換することです。このコンパイルは通常、以下の様な作業を行います。
+Lexer (字句解析器) と呼ばれるものでソースコードを Token (小さい文字列)に分解 Parser (構文解析器) と呼ばれるものでTokenを AST (抽象構文木)に変換 ASTを低級言語(機械語やアセンブリ言語)に変換 ということはこの三つを行うプログラムを書くことが出来れば自作言語のコンパイラを手にする事ができます!
+しかし、愚直にこれらを一から実装すると途轍もない時間がかかります。そこでライブラリを使って実装していくことになります。
+以下、C++で書くことを前提として話を進めます
+C#とかJavaとかRustとかでもいいんですがそれらは記事の対象外ということで
+1. Lexerを実装する Lexerはこれから行う3つの事の中では最も簡単に実装ができます。自力実装もそこまで難しくないです。
+しかし、今回のテーマはツール紹介ということなので自力でやりたいよ、という方は無視します。
+頑張って下さい。応援しています。
+LexerをC++で実装する時に使われる有名なツール(ライブラリ)として挙げられるのはこの三つです。
+lex (伝統的) flex (再構築されたlex) Antlr4 (新勢力) flexはlexと構文がほとんど同じなので、lexを使うくらいならより新しいflexを使ったほうがいいと思います。
+flexとAntlr4について言えば、どちらを選んでも困ることは起こらないので、それぞれ検索してみて、サンプルコードにシンパシーを感じた方を使えばいいと思います。
+個人的にはAntlr4で書いた方が読みやすいと思ったので、kaprinoにもAntlr4を使っています。
+2. Parserを実装する ParserをC++で実装する時に使われる有名なツール(ライブラリ)として挙げられるのはこの三つです。
+yacc (伝統的) bison (再構築されたyacc) Antlr4 (新勢力) ぱっと見でわかると思いますがlexとyacc、flexとbisonはセットで使うもので、Antlr4はLexerとParserどちらの実装にも使えます。
+別のパターンを組み合わせても出来ないことはないですが、デメリットしかないので大人しくLexerで選択したものと合うものを選びましょう。
+3. ASTから低級言語に変換する これが一番の難所で、自力実装はとても厳しいものとなります。</description></item><item><title>[LLVM] CreateGlobalStringPtrがクラッシュするときの対処法</title><link>https://caphosra.net/posts/2020-05-02-llvm-string-ptr/</link><pubDate>Sat, 02 May 2020 06:12:01 +0900</pubDate><guid>https://caphosra.net/posts/2020-05-02-llvm-string-ptr/</guid><description>CreateGlobalStringPtrをif文のブロックの中で失敗したので、それを解決する方法をご紹介します。
+発生したエラー 先ずは愚直にif文を実装していきましょう。
+auto ifblock = llvm::BasicBlock::Create(module-&amp;gt;getContext(), &amp;#34;then&amp;#34;); auto mergeblock = llvm::BasicBlock::Create(module-&amp;gt;getContext(), &amp;#34;merged&amp;#34;); ブランチの分かれた部分と合流部分ですね。
+builder-&amp;gt;CreateCondBr(match, ifblock, mergeblock); builder-&amp;gt;SetInsertPoint(ifblock); auto strptr = builder-&amp;gt;CreateGlobalStringPtr(&amp;#34;Hello World&amp;#34;); // ERROR ! builder-&amp;gt;CreateBr(mergeblock); その後でブランチを組込んで、if文の中にSetInsertPointしてから、&amp;ldquo;Hello World&amp;quot;という文字列をグローバル空間に確保してポインターを取得します。
+この際、期待通りの動作であればグローバル空間に&amp;quot;Hello World&amp;quot;と書き込んでから、そのポインターを取得するという操作になります。
+今、適当な関数の中のBasicBlockで、この操作を行ったものと仮定すれば、以下のようなコードとほぼ同等なはずです。
+const char* str = &amp;#34;Hello World&amp;#34;; void somefunc() { bool match; if (match) { // Create global string poiter and it points &amp;#34;HelloWorld&amp;#34;. auto strptr = str; } } しかし、このコードは失敗してしまいます。なぜでしょうか。
+BasicBlockの親の関数に注意! 鋭い方はもうお気づきでしょうが、(私は全く鋭くないので気づくのに2時間かかりました)
+ifblockとmergeblockの親の関数が指定されていません。BasicBlock::Createは親の関数を指定しなくても使えるので、意外と気づかないではまってしまいました。
+BasicBlock::Create(LLVMContext &amp;amp;Context, const Twine &amp;amp;Name=&amp;#34;&amp;#34;, Function *Parent=nullptr, BasicBlock *InsertBefore=nullptr); llvm::BasicBlock Class Reference</description></item><item><title>[LLVM] printfでFloat型の足し算の結果を表示する</title><link>https://caphosra.net/posts/2020-04-09-llvm-printf-float/</link><pubDate>Thu, 09 Apr 2020 13:06:28 +0900</pubDate><guid>https://caphosra.net/posts/2020-04-09-llvm-printf-float/</guid><description>LLVMのC++ APIを使用して、printfでFloat同士の足し算の結果を表示するLLVM IRを表示するまでを行いたいと思います。
+筆者の環境 LLVM: LLVM 9.0.1 Compiler: Visual Studio付属のcl.exe こんなコードを出力したい 以下のC言語のプログラムと同じ動きをするLLVM IRを出力するのが今回の目標です。
+floatの値を2つ足し算をしてprintfですね。
+#include &amp;lt;stdio.h&amp;gt; int main() { float f1 = 3.5; float f2 = 6.4; printf(&amp;#34;%f + %f = %f\n&amp;#34;, f1, f2, f1 + f2); return 0; } まずはprintfを定義しよう まず、printfの定義について思い出してみましょう。
+printfは関数の引数として、フォーマットの文字列と、複数の値をとることができます。
+戻り値はInt32型で帰ってきます。(私は戻り値を使ったことがあまりないです。)
+int printf(const char* format, ...); それではC++のコードで実装していきます。
+まず、LLVMのサポートClassを初期化していきましょう。
+Builderが大文字なのは、LLVMの公式Tutorialで大文字になっていたので、それに慣れてしまったからです。変数名は勿論変えていただいて問題ありません。
+llvm::LLVMContext context; llvm::IRBuilder&amp;lt;&amp;gt; Builder(context); llvm::Module* module; module = new llvm::Module(&amp;#34;test.ll&amp;#34;, context); これからいちいち型を定義するのは大変なので、基本的な型はマクロとして簡単にかける様にしておきます。これは本当に我流なのでこのマクロを定義するのが一般的だと思い込まないでください&amp;hellip;
+#define LLVM_INT8_PTR_TY llvm::Type::getInt8PtrTy(context) #define LLVM_INT32_TY llvm::Type::getInt32Ty(context) #define LLVM_FLOAT_TY llvm::Type::getFloatTy(context) #define LLVM_DOUBLE_TY llvm::Type::getDoubleTy(context) これで前準備は終了です。printfの定義に移っていきましょう。</description></item><item><title>LLVMをWindowsで使いたくて入れたらlliなかった話</title><link>https://caphosra.net/posts/llvm-lli-install/</link><pubDate>Sat, 07 Mar 2020 12:54:53 +0900</pubDate><guid>https://caphosra.net/posts/llvm-lli-install/</guid><description>オレオレ言語を作るためにAntlr4を習得(?)したcapra314cabraです。
+今回は自分のWindowsのパソコンにLLVMを使える環境を作ろうとして手こずったのでそれの事について書いていきたいと思います。
+まずLLVMって? The LLVM compiler infrastructure project is a set of compiler and toolchain technologies, which can be used to develop a front end for any programming language and a back end for any instruction set architecture.
+wikipedia LLVM
+そういうことらしいです。LLVMのツール群の使い方は触れない予定なので、他のサイトをご覧下さい。
+最初にやったこと(失敗談) 取り敢えず、思考停止でLLVMのリリースページへ
+現時点でLLVM9.0.1が最新ですが、Pre-Built Binariesの何もなかったので、LLVM9.0.0のところにあるWindows (64-bit)をポチっとしてダウンロード。 インストラーだったので実行してインストール完了!
+&amp;hellip;と思いきや、Clang等はインストールされていたものの、lliやllc、llvm-asなどが見当たりませんでした。
+次にやったこと(失敗談) Chocolatery(Windows用のパッケージマネージャ)を使ってLLVMを入れれば全部のせになるかな、という希望的観測でやってみると、ひとつ前と全く同じ&amp;hellip;
+他の人がビルドしているものを貰う(止めた) 古いのばかり出てきました(LLVM3が多い印象)
+LLVM9.0.0が使いたいのでうーん、といった感じ
+最終手段 ということで、結局ソースコードを全部ビルドすることにしました。
+私がやった手順としては
+LLVM Project(Github)からllvm-9.0.1.src.tar.xzをダウンロード ダウンロードしたら、展開する(因みに私は7zip使いです) CMakeを使ってVisual StudioのSolutionを生成(オプションは変更なしで行けました) Visual Studioを開いてConfigurationをReleaseにしてビルド Releaseフォルダの中にbinとlibフォルダが出来るので、その中にツール群が広がっているはずです! 後は適当にパスを通してインストール完了です!
+ソースコードと生成物を合わせて全部で2.8GBでした。想像より少なかった。
+さいごに LLVMを学ぶことがとても大変なのにもかかわらず、&amp;ldquo;あれ、ツールがない!&amp;ldquo;で数時間無駄にしたくないですよね。
+Windows環境でLLVMをインストールしたい人はぜひ参考にしてみてください。</description></item></channel></rss>

@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on caphosra note</title><link>https://caphosra.net/posts/</link><description>Recent content in Posts on caphosra note</description><generator>Hugo -- gohugo.io</generator><language>ja</language><lastBuildDate>Sun, 07 Jan 2024 20:14:04 +0900</lastBuildDate><atom:link href="https://caphosra.net/posts/index.xml" rel="self" type="application/rss+xml"/><item><title>[CTF] SECCON CTF 2023 Finals Domestic writeup</title><link>https://caphosra.net/posts/2024-01-07-seccon-final/</link><pubDate>Sun, 07 Jan 2024 20:14:04 +0900</pubDate><guid>https://caphosra.net/posts/2024-01-07-seccon-final/</guid><description>SECCON CTF 2023の国内決勝にTSGとして参加しました. 1.5問くらい解いたのでwriteupを書きたいと思います.
+Reversing: ReMOV Reversingの問題. 大量の意味のないmov, movaps命令が並んでいるバイナリが与えられ, そのバイナリが受理するFlagを考えるというもの.
+GhidraでさっとDisassembleして読もうとしたが, 当然まともに読めそうになかったのでgdbで実行しながら怪しい部分を探した. まず, 最初の方は文字列の長さを見て32文字であるかを確認する部分がある. その次に, 文字列の先頭がSECCON{であるかどうかを判定する部分と最後が}で終了しているか確認する部分がある.
+ここまでは, 適当にSECCON{AAA....A}のような長さ32の文字列を与えておけば特に問題はない. さて, ここから引数を8bytesごとにチェックするパートに入る. 具体的には8bytesを切り出して, ある固定値とxorを取ってから別の固定値と比較する操作が4回行われる. 一見, もう一度xorを取ることで容易にFlagを復号できそうだが, このままでは先頭8bytesの値がL\xbd~\xb3HN{yでなければならなくなり, これは先頭8bytesがSECCON{であることと矛盾する.
+もう一度用心深く探ってみると, 途中で不審にptraceを呼んでいる部分がある. これでgdbのようなデバッガーをattachしているかどうか判定し, その返り値によってxorをとる固定値を変更しているようである. そこで, ptraceが呼ばれた後にraxを変えてしまえば問題ないだろうと推測し, 実際うまく行った. 以下のように書けばこれを実現できる.
+gdb.execute(&amp;#39;b *0x555555555096&amp;#39;) gdb.execute(&amp;#39;c&amp;#39;) gdb.execute(&amp;#39;set $rax = 0&amp;#39;) 実際にその場で書いたソースコードはこんな感じ. 8bytesごとに答えが出てくる.
+#!/bin/python3 import gdb import re flag = b&amp;#34;SECCON{y3t_4n0th3r_m0vfuAAAAAAA}&amp;#34; gdb.execute(&amp;#39;file ./remov&amp;#39;) o = gdb.execute(f&amp;#39;starti {flag.decode()}&amp;#39;, to_string=True) print(o) gdb.execute(&amp;#39;b *0x555555555096&amp;#39;) gdb.execute(&amp;#39;b *0x555555555605&amp;#39;) gdb.execute(&amp;#39;b *0x555555555637&amp;#39;) gdb.execute(&amp;#39;b *0x55555555567d&amp;#39;) gdb.execute(&amp;#39;c&amp;#39;) gdb.execute(&amp;#39;set $rax = 0&amp;#39;) current = int.</description></item><item><title>自作言語を作るまでに使えるツールたち</title><link>https://caphosra.net/posts/2020-10-03-original-language/</link><pubDate>Sat, 03 Oct 2020 21:36:42 +0900</pubDate><guid>https://caphosra.net/posts/2020-10-03-original-language/</guid><description>遂に、自作言語kaprinoが無事完成したのでその記念に、自作言語を実装するにあたって 使った物をこの記事で紹介したいと思います。実際に自作言語を作ろうと思っても 何から手を付けていいのか分からなくなってしまうことがあることは想像に難くないので、 その様な人への羅針盤のような記事になることを期待しています。
+ただ、それぞれの使い方まで言及すると記事の量がどえらい事になるので、使い方はいずれ書こうと思います。
+これから自作言語作る予定がある方は必見です!
+もう既に自作言語を実装した経験がある方はお手柔らかにお願いします。
+自作言語kaprinoのソースコードを管理しているrepositoryへのリンクと自作のオンラインコンパイラ(この話はまた別の記事で)です。もし良かったら見てみてください。
+Github kaprino-lang
+Kaprino Online Compiler
+まず自作言語を何故作ろうと思ったのか なぜでしょうね。
+自作言語を作る人がよく言うのは、使っている既存の言語に不満があって自分の好みにあった言語を作ってみたい、という感じでしょうが、 私が自作言語を作ろうと思った理由は、本当になんとなくです。自作言語という言葉の響きによるものだと言えるかもしれませんし、 単純に自分は気付いていないだけで言語に不満があったのかもしれません。
+これは本題ではないのでこれくらいにしておきます。
+言語を動かすまでを大雑把に把握 さて本題に入りましょう。
+これから言語を作るまでに使ったものを紹介してゆく訳ですが、そもそも私の自作言語kaprinoが どのように動いているか説明したいと思います。
+まず、kaprinoは静的な型付けの言語で、実行前にコンパイルを必要とします。
+コンパイル とはソースコードを機械語に変換することです。このコンパイルは通常、以下の様な作業を行います。
+Lexer (字句解析器) と呼ばれるものでソースコードを Token (小さい文字列)に分解 Parser (構文解析器) と呼ばれるものでTokenを AST (抽象構文木)に変換 ASTを低級言語(機械語やアセンブリ言語)に変換 ということはこの三つを行うプログラムを書くことが出来れば自作言語のコンパイラを手にする事ができます!
+しかし、愚直にこれらを一から実装すると途轍もない時間がかかります。そこでライブラリを使って実装していくことになります。
+以下、C++で書くことを前提として話を進めます
+C#とかJavaとかRustとかでもいいんですがそれらは記事の対象外ということで
+1. Lexerを実装する Lexerはこれから行う3つの事の中では最も簡単に実装ができます。自力実装もそこまで難しくないです。
+しかし、今回のテーマはツール紹介ということなので自力でやりたいよ、という方は無視します。
+頑張って下さい。応援しています。
+LexerをC++で実装する時に使われる有名なツール(ライブラリ)として挙げられるのはこの三つです。
+lex (伝統的) flex (再構築されたlex) Antlr4 (新勢力) flexはlexと構文がほとんど同じなので、lexを使うくらいならより新しいflexを使ったほうがいいと思います。
+flexとAntlr4について言えば、どちらを選んでも困ることは起こらないので、それぞれ検索してみて、サンプルコードにシンパシーを感じた方を使えばいいと思います。
+個人的にはAntlr4で書いた方が読みやすいと思ったので、kaprinoにもAntlr4を使っています。
+2. Parserを実装する ParserをC++で実装する時に使われる有名なツール(ライブラリ)として挙げられるのはこの三つです。
+yacc (伝統的) bison (再構築されたyacc) Antlr4 (新勢力) ぱっと見でわかると思いますがlexとyacc、flexとbisonはセットで使うもので、Antlr4はLexerとParserどちらの実装にも使えます。
+別のパターンを組み合わせても出来ないことはないですが、デメリットしかないので大人しくLexerで選択したものと合うものを選びましょう。
+3. ASTから低級言語に変換する これが一番の難所で、自力実装はとても厳しいものとなります。</description></item><item><title>C++で全てのstd::minやstd::maxにエラーが出た時の対処法</title><link>https://caphosra.net/posts/2020-07-14-cpp-conflict/</link><pubDate>Tue, 14 Jul 2020 21:53:29 +0900</pubDate><guid>https://caphosra.net/posts/2020-07-14-cpp-conflict/</guid><description>今日、先程あった出来事なのですが、手元のLinux環境で動いているコードをWindows上でビルドしようとしたら突如大量のエラーが発生。
+C:\Program Files (x86)\LLVM\include\llvm/ADT/StringRef.h(286,1): error C2059: syntax error: &amp;#39;)&amp;#39; [D:\a\kaprino\kaprino\build\kprc.vcxproj] C:\Program Files (x86)\LLVM\include\llvm/ADT/StringRef.h(346,19): error C2589: &amp;#39;(&amp;#39;: illegal token on right side of &amp;#39;::&amp;#39; [D:\a\kaprino\kaprino\build\kprc.vcxproj] C:\Program Files (x86)\LLVM\include\llvm/ADT/StringRef.h(346,1): error C2062: type &amp;#39;unknown-type&amp;#39; unexpected [D:\a\kaprino\kaprino\build\kprc.vcxproj] C:\Program Files (x86)\LLVM\include\llvm/ADT/StringRef.h(346,1): error C2059: syntax error: &amp;#39;)&amp;#39; [D:\a\kaprino\kaprino\build\kprc.vcxproj] C:\Program Files (x86)\LLVM\include\llvm/ADT/StringRef.h(579,20): error C2589: &amp;#39;(&amp;#39;: illegal token on right side of &amp;#39;::&amp;#39; [D:\a\kaprino\kaprino\build\kprc.vcxproj] C:\Program Files (x86)\LLVM\include\llvm/ADT/StringRef.h(579,1): error C2062: type &amp;#39;unknown-type&amp;#39; unexpected [D:\a\kaprino\kaprino\build\kprc.vcxproj] C:\Program Files (x86)\LLVM\include\llvm/ADT/StringRef.h(579,1): error C2059: syntax error: &amp;#39;)&amp;#39; [D:\a\kaprino\kaprino\build\kprc.</description></item><item><title>[C# tips] #3 C#を対話形式で実行しよう</title><link>https://caphosra.net/posts/2020-05-24-csharptips3/</link><pubDate>Sun, 24 May 2020 06:36:13 +0900</pubDate><guid>https://caphosra.net/posts/2020-05-24-csharptips3/</guid><description>簡単な計算をする時にPythonを使っていませんか?
+対話形式で実行するのはとても便利ですよね。しかし、これと同じことはC#でも出来るのです。
+そもそも対話形式とは? ユーザーがプログラムを入力すると、それを評価してくれるのが対話形式です。
+Pythonを使ったことがあれば、以下のような感じです。
+&amp;gt;&amp;gt;&amp;gt; a = 10 &amp;gt;&amp;gt;&amp;gt; a * a * 3.14 314.0 その場で計算してくれるので、書き捨てコードとしてとても有用です。(筆者は素数判定とかを無性にしたくなった時に使っています。)
+C#って静的言語だから無理なんじゃないですか? Pythonは動的実行をしている(実行時に型変換等を行っている)のに対して、
+C#はC++などと同じで静的言語であるので実行にはコンパイルが不可欠なはずです。
+コンパイルが必要ということは、時間がかかりすぎるので対話形式で実行するのには致命的&amp;hellip;
+Wikipedia 動的プログラミング言語
+しかし、C#を動的に実行したいと考える人はいるようで
+C#を対話形式で実行する拡張 世の中にはC#を対話形式で実行したいと思う人が少なからずいるのでしょう。C#を標準で対話形式で実行することは出来ませんが、 拡張を使用することでできるようになります。
+いくつか拡張が存在するのでご紹介します。
+C# REPL 有名な対話形式の拡張として、オープンソースのC#の先駆けとなったMonoプロジェクトが提供する C# REPLがあります。
+使い方は簡単です。Monoをインストールして
+$ csharp と実行するだけです。
+以下の様にC#を対話形式で実行することが可能です。
+$ csharp csharp&amp;gt; using System; csharp&amp;gt; var a = 10; csharp&amp;gt; a * a * Math.PI; 314.159265358979 Mono C#を使用している方は今すぐ試すことができます。
+dotnet script C# REPLはMonoプロジェクトのものでした。一方でこちらは .NET Coreで使うことができるものです。
+dotnet scriptは .NET CoreにGlobal toolとして以下のコマンドを使用してインストール出来ます。
+.NET Core 2.</description></item><item><title>[LLVM] CreateGlobalStringPtrがクラッシュするときの対処法</title><link>https://caphosra.net/posts/2020-05-02-llvm-string-ptr/</link><pubDate>Sat, 02 May 2020 06:12:01 +0900</pubDate><guid>https://caphosra.net/posts/2020-05-02-llvm-string-ptr/</guid><description>CreateGlobalStringPtrをif文のブロックの中で失敗したので、それを解決する方法をご紹介します。
+発生したエラー 先ずは愚直にif文を実装していきましょう。
+auto ifblock = llvm::BasicBlock::Create(module-&amp;gt;getContext(), &amp;#34;then&amp;#34;); auto mergeblock = llvm::BasicBlock::Create(module-&amp;gt;getContext(), &amp;#34;merged&amp;#34;); ブランチの分かれた部分と合流部分ですね。
+builder-&amp;gt;CreateCondBr(match, ifblock, mergeblock); builder-&amp;gt;SetInsertPoint(ifblock); auto strptr = builder-&amp;gt;CreateGlobalStringPtr(&amp;#34;Hello World&amp;#34;); // ERROR ! builder-&amp;gt;CreateBr(mergeblock); その後でブランチを組込んで、if文の中にSetInsertPointしてから、&amp;ldquo;Hello World&amp;quot;という文字列をグローバル空間に確保してポインターを取得します。
+この際、期待通りの動作であればグローバル空間に&amp;quot;Hello World&amp;quot;と書き込んでから、そのポインターを取得するという操作になります。
+今、適当な関数の中のBasicBlockで、この操作を行ったものと仮定すれば、以下のようなコードとほぼ同等なはずです。
+const char* str = &amp;#34;Hello World&amp;#34;; void somefunc() { bool match; if (match) { // Create global string poiter and it points &amp;#34;HelloWorld&amp;#34;. auto strptr = str; } } しかし、このコードは失敗してしまいます。なぜでしょうか。
+BasicBlockの親の関数に注意! 鋭い方はもうお気づきでしょうが、(私は全く鋭くないので気づくのに2時間かかりました)
+ifblockとmergeblockの親の関数が指定されていません。BasicBlock::Createは親の関数を指定しなくても使えるので、意外と気づかないではまってしまいました。
+BasicBlock::Create(LLVMContext &amp;amp;Context, const Twine &amp;amp;Name=&amp;#34;&amp;#34;, Function *Parent=nullptr, BasicBlock *InsertBefore=nullptr); llvm::BasicBlock Class Reference</description></item><item><title>[C# tips] #2 privateなメンバーにアクセスしよう</title><link>https://caphosra.net/posts/2020-04-10-csharptips2/</link><pubDate>Fri, 10 Apr 2020 18:08:04 +0900</pubDate><guid>https://caphosra.net/posts/2020-04-10-csharptips2/</guid><description>これで二回目です。前回はC#のLinqに関する軽い紹介を書きました。
+今日のテーマは&amp;quot;privateなメンバーにアクセスしよう&amp;quot;です。
+注意 この記事ではSystem.Reflectionを使用してprivateなメンバーにアクセスする方法をお伝えします。ただ、自己責任でお願いします。(危ない操作ではありませんが、人のコードに対して行えば著作権侵害とかになりえるので。)
+突然ですが問題です あなたは以下のようなクラスのインスタンスを与えられました。
+このクラスにはどうやらfloat型の変数があってそれは秘密の値で初期化されているようです。
+秘密にされると暴きたくなるのが人間の性、Capra君はどうしても秘密の値を知りたいです。
+果たしてどうすれば秘密の値を手に入れられるでしょうか?
+public class HasSecret { private float ????? = ?????; public float dummy1 = 3.14f; private int dummy2 = 314; } ならディスアセンブルすれば&amp;hellip;? 確かに、dnSpyというC#で凄まじい威力を発揮するディスアセンブラを使えば瞬殺できます。ただ、やはりC#のコードで解決したいですよね。(というより、dnSpy使うのなら記事の意味がなくなってしまいそう&amp;hellip;)
+GitHub - 0xd4d/dnSpy
+ということでC#のコードからHasSecret内の変数にアクセスしてみましょう。
+まずは愚直にアクセス 試しに、dummy2に何も考えずにアクセスしてみましょう。
+var secret = new HasSecret(); Console.WriteLine(secert.dummy2); error CS0122: &amp;#39;HasSecret.dummy2&amp;#39; is inaccessible due to its protection level 当然ながらエラーが発生しました。これでアクセス出来たらライブラリ開発者はたまったものじゃないですよね。せっかくの実装の隠蔽が意味をなさなくなりますから。
+また、この方法だと、privateな変数にアクセスするどころか変数名さえわかりません。
+今回は変数名さえわからない状態なので、どうすればいいのでしょうか&amp;hellip;
+ここでSystem.Reflection ここから、System.Reflectionを使っていきます。
+System.Reflectionは型の情報を使用して動的に物事を処理する方法を提供するクラスを揃えたバリューパックのような名前空間です。
+それではそれらを使用して、privateな変数にアクセスしていきましょう。
+まず、GetType関数を使って動的に型を取得します。静的に型を取得したい方はtypeofキーワードを利用するといいと思います。
+受け取った型の型はSystem.Typeとなります。
+// using System.Reflection; var secret = new HasSecret(); var type = secret.</description></item><item><title>[LLVM] printfでFloat型の足し算の結果を表示する</title><link>https://caphosra.net/posts/2020-04-09-llvm-printf-float/</link><pubDate>Thu, 09 Apr 2020 13:06:28 +0900</pubDate><guid>https://caphosra.net/posts/2020-04-09-llvm-printf-float/</guid><description>LLVMのC++ APIを使用して、printfでFloat同士の足し算の結果を表示するLLVM IRを表示するまでを行いたいと思います。
+筆者の環境 LLVM: LLVM 9.0.1 Compiler: Visual Studio付属のcl.exe こんなコードを出力したい 以下のC言語のプログラムと同じ動きをするLLVM IRを出力するのが今回の目標です。
+floatの値を2つ足し算をしてprintfですね。
+#include &amp;lt;stdio.h&amp;gt; int main() { float f1 = 3.5; float f2 = 6.4; printf(&amp;#34;%f + %f = %f\n&amp;#34;, f1, f2, f1 + f2); return 0; } まずはprintfを定義しよう まず、printfの定義について思い出してみましょう。
+printfは関数の引数として、フォーマットの文字列と、複数の値をとることができます。
+戻り値はInt32型で帰ってきます。(私は戻り値を使ったことがあまりないです。)
+int printf(const char* format, ...); それではC++のコードで実装していきます。
+まず、LLVMのサポートClassを初期化していきましょう。
+Builderが大文字なのは、LLVMの公式Tutorialで大文字になっていたので、それに慣れてしまったからです。変数名は勿論変えていただいて問題ありません。
+llvm::LLVMContext context; llvm::IRBuilder&amp;lt;&amp;gt; Builder(context); llvm::Module* module; module = new llvm::Module(&amp;#34;test.ll&amp;#34;, context); これからいちいち型を定義するのは大変なので、基本的な型はマクロとして簡単にかける様にしておきます。これは本当に我流なのでこのマクロを定義するのが一般的だと思い込まないでください&amp;hellip;
+#define LLVM_INT8_PTR_TY llvm::Type::getInt8PtrTy(context) #define LLVM_INT32_TY llvm::Type::getInt32Ty(context) #define LLVM_FLOAT_TY llvm::Type::getFloatTy(context) #define LLVM_DOUBLE_TY llvm::Type::getDoubleTy(context) これで前準備は終了です。printfの定義に移っていきましょう。</description></item><item><title>[C# tips] #1 C#でSQLみたいな構文?</title><link>https://caphosra.net/posts/2020-03-20-onepoint-csharp/</link><pubDate>Mon, 30 Mar 2020 16:26:36 +0900</pubDate><guid>https://caphosra.net/posts/2020-03-20-onepoint-csharp/</guid><description>30億のデバイスで動くJavaの方がC#より強そう
+C#ってWin APIを呼ぶやつ&amp;hellip;?
+このような事をいわれたことがあったので、対抗策として、C#の豆知識や小話(というほどでもない)を紹介するシリーズを始めようと思った次第です。
+これが、記念すべき第一回です。
+本編 じつはC#にはSQL likeな構文が用意されています、というのが今回の話です。(あ、これ知ってるよという方、黙ってこのページを閉じてください)
+SQLと聞くと&amp;hellip;
+データベースの操作をするやつ クエリを投げるやつ 実はSQLは言語そのもののことではない など色々思い浮かべると思います。
+SQLはデータを処理するのに特化した言語です。SQLでゲームを作るなどという話は聞いたことがありません。
+SQLでデータを取り出してみる 例えば、SQLのデータベースに以下のようなテーブルがあったとします。
+Table名 : TestResults
+math english name 50 100 A 60 70 B 80 80 C 40 90 D この時、mathが50以上なものを取り出し、englishの値の降順でソートしたいと思います。
+SELECT math, english FROM TestResults WHERE math &amp;gt;= 50 ORDER BY english DESC; これを行うSQLの文はこのようになります。ここでの解説は本題ではないので飛ばします。詳しくはググって下さい。
+C#でこれができたなら&amp;hellip; できます。System.Linqを使用しましょう。
+まず、Listを用意しましょう。Tupleを使用しました。古いバージョンのC#をお使いの方と匿名型大好きな方、すみません。
+// using System; // using System.Collections.Generic; var testResults = new List&amp;lt;(int math, int english, string name)&amp;gt;() { (50, 100, &amp;#34;A&amp;#34;), (60, 70, &amp;#34;B&amp;#34;), (80, 80, &amp;#34;C&amp;#34;), (40, 90, &amp;#34;D&amp;#34;) }; そして、C#でSQL likeに同じ処理を行ってみましょう。</description></item><item><title>Avalonia UIで画像を使ったボタンを作成する方法</title><link>https://caphosra.net/posts/2020-03-29-avalonia-image-button/</link><pubDate>Sun, 29 Mar 2020 10:17:52 +0900</pubDate><guid>https://caphosra.net/posts/2020-03-29-avalonia-image-button/</guid><description>今回は、知らないと難しい、Avalonia UIで画像を使ったボタンを作成していきます。
+前置きはさっさと飛ばして、本題に入りましょう。
+前提条件 もう既にAvaloniaのプロジェクトを作っていること。 ボタンにする画像を選んでいること。 画像の準備 私は3枚の画像を選びました。通常の見た目と、Hover時の見た目と、Click時の見た目です。1枚で全ての場合をやってもいいんですが、Userが見た目からボタンとして認識してくれない危険性があるので推奨はしません。
+画像はAssetsフォルダに入れます。
+もし、Assetsフォルダがない!という場合は、Assetsフォルダを作ってから、プロジェクトファイルに
+&amp;lt;ItemGroup&amp;gt; &amp;lt;AvaloniaResource Include=&amp;#34;Assets\*&amp;#34;/&amp;gt; &amp;lt;/ItemGroup&amp;gt; と追記してください。
+UserControlを作る 先ずは、UserControlを作成しましょう。名前は適宜読み替えてください。
+[Visual Studio]
+Right click your project&amp;rsquo;s Views folder in Solution Explorer Select the Add -&amp;gt; New Item menu item In the dialog that appears, navigate to the &amp;ldquo;Avalonia&amp;rdquo; section in the category tree Select &amp;ldquo;User Control (Avalonia)&amp;rdquo; Enter TodoListView as the &amp;ldquo;Name&amp;rdquo; Click the &amp;ldquo;Add&amp;rdquo; button [.NET Core]
+dotnet new avalonia.usercontrol -o Views -n TodoListView --namespace Todo.</description></item><item><title>WSL2を使えるようにする</title><link>https://caphosra.net/posts/wsl2-setup/</link><pubDate>Sat, 14 Mar 2020 20:04:43 +0900</pubDate><guid>https://caphosra.net/posts/wsl2-setup/</guid><description>Windows上でLinuxをエミュレートしてくれるWSLが進化を遂げ&amp;hellip;
+遂にWSL2が使用出来るようになりました!やったね!
+このニュースを聞いたら、当然プログラマー的には使ってみたくなりますよね。
+ということで、気楽にインストールしようとしたら&amp;hellip;&amp;ldquo;あれ?コマンドがないよ&amp;quot;みたいにWindowsに怒られてしまいました。
+WSL2を使用出来るようにするのは一筋縄ではいかなかったので使用できるまでの道筋を紹介していきたいと思います。
+WSL2はまだ安定していない様なので あくまで自己責任で お願いします。
+まず、Windowsをアップデート 実は、私はこれを忘れて数分溶かしました。
+WSL 2 is only available in Windows 10 builds 18917 or higher
+Microsoft - WSL2 Install
+なるほど、Windows 10のビルド番号18917番以降を持っている必要があるのですね。
+しかしながら、ただ、愚直にWindowsをアップデートしても、現段階では18917番以前のものになってしまいます。(バージョン確認にはwinverコマンドを)
+それを解決するために、Windows Insiderに加入しましょう。
+これは、Windowsの新しいバージョンをMicrosoftが配布し、問題を見つけたら報告するというシステムです。
+試験的な内容をいち早く使うことが出来ます。
+Microsoftアカウントを持っていると登録は一瞬で終わります。なんと、無料　です。
+続いて設定を開きます。そして&amp;quot;更新とセキュリティ&amp;quot;をクリック。
+&amp;ldquo;Windows Insider Program&amp;quot;をクリックして、ログインしてください。
+Insiderの設定は&amp;quot;スロー&amp;quot;で問題ないと思います。
+続いて、&amp;ldquo;Windows Update&amp;quot;に移って、&amp;ldquo;更新プログラムのチェック&amp;quot;をクリック。 先程までなかった、より新しいWindows 10のバージョンへの更新ができるようになります! これで、先程のWindowsバージョン問題は解決です。あとは、ひたすらWindows Updateを見る会です。
+WSLをインストールしていく WSLのインストール方法は通常の方法と同じなので割愛します。
+以下のサイトがわかりやすかったです。(丸投げ)
+Qitta - Windows Subsystem for Linuxをインストールしてみよう！ @Aruneko
+本当にWSLのインストールと同じです。
+WSLを既にインストールしているよ、という方はここをスルーしても大丈夫です。
+WSL2へ変更しましょう Microsoft - Updating WSL2 Linux kernel
+このサイトに飛んで、WSL2のカーネルを入手します。
+ダウンロードしてきたインストーラーを実行しましょう!
+インストールが終わったら長かったWSL2セットアップももうすぐおしまいです。
+好きなターミナルを開いて以下のコマンドを打ち込んで実行してください!
+wsl --set-default-version 2 おめでとうございます!</description></item><item><title>Hugoで_index.mdの仕様を変更した話</title><link>https://caphosra.net/posts/hugo-index-override/</link><pubDate>Thu, 12 Mar 2020 10:35:31 +0900</pubDate><guid>https://caphosra.net/posts/hugo-index-override/</guid><description>今回は、Hugoについてです。
+_index.mdは標準では限られたコンテンツしか含めないので、それを改造していきたいと思います。
+そもそも_index.mdとは?というところにも触れるので、_index.mdとindex.mdの仕様に疑問がある方は必見です。
+Hugoでの_index.md 以下のようなフォルダがサーバー上にあったとします。
+- contents - old * index.html * old_content.html * index.html * content1.html * content2.html この時に、contents/とcontents/index.htmlはアクセスしたときに同じ様に表示されます。
+同様にcontents/old/とcontents/old/index.htmlも同じ表示となります。
+これは、フォルダにアクセスしたときに、index.htmlが存在するか探索されるからです。
+一方で、Hugoでは、index.mdと_index.mdというこれとほぼ同様の役割を果たすものをが用意されています。
+ただ、これらは厳密には異なり、仕様が異なります。
+ひとつづつ見ていきましょう。
+index.mdの仕様 index.mdはほとんどindex.htmlのようなものであると思ってもらってもいいです。
+- contents - blog * index.md のようにファイルを配置すれば、ビルド後は、[servername]/blog/とアクセスすることもできるし、 [servername]/blog/index.htmlとアクセスすることも出来ます。
+ただ、index.mdには__落とし穴__が&amp;hellip;
+- contents - blog - item * index.md &amp;lt;- NG (index.md被りは禁止) * index.md &amp;lt;- OK * server.md &amp;lt;- NG (server/indexかのように扱われる) - about * index.md このような配置をして、ビルドすると、server.mdとitem/index.mdがビルドされません!
+なぜかと言うと、index.mdは 下層ノードでの重複が禁止 されているからです。
+即ち、blog/はもう既にindex.mdを持っているので、子ディレクトリのindex.mdはビルドされません。 Hugoはserver.mdの様なファイルをserver/index.htmlにビルドしようとするのでserver.mdもビルドされません。
+ややこしいですね。即ち、index.mdをフォルダに置いたら、その子フォルダのMarkdownファイルはすべてビルドされないということです。
+これは前述のHTMLのサーバーとは全く異なる仕様です。
+_index.mdの仕様 一方、_index.mdは</description></item><item><title>LLVMをWindowsで使いたくて入れたらlliなかった話</title><link>https://caphosra.net/posts/llvm-lli-install/</link><pubDate>Sat, 07 Mar 2020 12:54:53 +0900</pubDate><guid>https://caphosra.net/posts/llvm-lli-install/</guid><description>オレオレ言語を作るためにAntlr4を習得(?)したcapra314cabraです。
+今回は自分のWindowsのパソコンにLLVMを使える環境を作ろうとして手こずったのでそれの事について書いていきたいと思います。
+まずLLVMって? The LLVM compiler infrastructure project is a set of compiler and toolchain technologies, which can be used to develop a front end for any programming language and a back end for any instruction set architecture.
+wikipedia LLVM
+そういうことらしいです。LLVMのツール群の使い方は触れない予定なので、他のサイトをご覧下さい。
+最初にやったこと(失敗談) 取り敢えず、思考停止でLLVMのリリースページへ
+現時点でLLVM9.0.1が最新ですが、Pre-Built Binariesの何もなかったので、LLVM9.0.0のところにあるWindows (64-bit)をポチっとしてダウンロード。 インストラーだったので実行してインストール完了!
+&amp;hellip;と思いきや、Clang等はインストールされていたものの、lliやllc、llvm-asなどが見当たりませんでした。
+次にやったこと(失敗談) Chocolatery(Windows用のパッケージマネージャ)を使ってLLVMを入れれば全部のせになるかな、という希望的観測でやってみると、ひとつ前と全く同じ&amp;hellip;
+他の人がビルドしているものを貰う(止めた) 古いのばかり出てきました(LLVM3が多い印象)
+LLVM9.0.0が使いたいのでうーん、といった感じ
+最終手段 ということで、結局ソースコードを全部ビルドすることにしました。
+私がやった手順としては
+LLVM Project(Github)からllvm-9.0.1.src.tar.xzをダウンロード ダウンロードしたら、展開する(因みに私は7zip使いです) CMakeを使ってVisual StudioのSolutionを生成(オプションは変更なしで行けました) Visual Studioを開いてConfigurationをReleaseにしてビルド Releaseフォルダの中にbinとlibフォルダが出来るので、その中にツール群が広がっているはずです! 後は適当にパスを通してインストール完了です!
+ソースコードと生成物を合わせて全部で2.8GBでした。想像より少なかった。
+さいごに LLVMを学ぶことがとても大変なのにもかかわらず、&amp;ldquo;あれ、ツールがない!&amp;ldquo;で数時間無駄にしたくないですよね。
+Windows環境でLLVMをインストールしたい人はぜひ参考にしてみてください。</description></item><item><title>[CTF] Nullcon HackIM 2020 writeup</title><link>https://caphosra.net/posts/hackim2020-writeup/</link><pubDate>Sun, 09 Feb 2020 17:54:45 +0900</pubDate><guid>https://caphosra.net/posts/hackim2020-writeup/</guid><description>Nullcon HackIM 2020に出たのでそのwriteupでも書こうかなーと思った次第です。
+結論から申し上げますと、解けた問題は1問です&amp;hellip;(しかも、その問題はコピペするだけ)
+ただ、そんなのではwriteupとして意味をなさないので、競技終了後も作業していました。
+結局ZeldaAdventureの最初の1問を解くことができたのでそれをここに載せます。
+問題の見た目 Unity製のGameで、このNPC(白い敵)を1体以上倒すとFlagを手に入れられる、とあります。
+Playerは剣と体当たり(接触)することでNPCにダメージを与えられますが、敵のHPがとても高く、現実的な時間に倒せないようになっています。
+やったこと UnityのWindowsでビルドした時のファイル構成は決まっています。
+特に、プログラマーが書いたコードはAssemblyCSharp.dllというファイルにコンパイルされて存在しています。
+ここで、dnSpyを使用してAssemblyCSharp.dllの中のコードを読んでみます。
+コードの森を探索していると&amp;hellip;
+// Token: 0x06000006 RID: 6 private void TakeDamage(float damage) { this.health -= damage; if (this.health &amp;lt;= 0f) { base.StartCoroutine(this.ShowSome()); base.gameObject.SetActive(false); } } ダメージを処理している部分を見つけました。
+HPが0になるとShowSomeというコールチンを回し始めるようです。
+// Token: 0x0600000A RID: 10 private IEnumerator ShowSome() { this.textbox.SetActive(true); yield return new WaitForSeconds(3f); this.textbox.SetActive(false); yield return null; yield break; } ShowSomeをみるとthis.textboxを見せるようにしているみたいです。
+これはこのTextBoxがFlagを持っているのでしょう。
+dnSpyは実はDLLを編集する事が出来るので、このthis.textboxを最初から表示させるようにコードを書き換えれば、Flagゲットです。
+Flag: REVOLUTIONSTARTSWITHME フォントがおしゃれすぎて読みにくかったです(褒めてます)
+おわりに HackIM 2020の前に無力さを感じたので、もっと勉強してから出直します&amp;hellip;
+参考 Unity-Game-Hacking</description></item><item><title>Powershellでsudoしてみたい話</title><link>https://caphosra.net/posts/powershell-sudo/</link><pubDate>Wed, 11 Dec 2019 22:28:26 +0900</pubDate><guid>https://caphosra.net/posts/powershell-sudo/</guid><description>今回紹介することはタイトルそのままです。
+PowershellではBashのsudoのように簡単に管理者権限で実行出来るようにするコマンドがありません。
+そこで、それとほぼ同等なものを作りたい、というのが今回の話題です。
+早速、始めて行きましょう。
+手元の環境 Powershell 6.2.3
+私が使っているPowershellはWindowsに標準でインストールされている.NET Framework依存のものではなく、 .NET Core依存のものです。これはWindowsだけでなくmacOSやLinuxでも動くのでWindows以外を使っている方もインストール出来ます。
+以降、Powershellの実行ファイル名をpwsh.exeとしていますが、.NET Framework依存のものをお使いの方は適宜powershell.exeで読み替えてください。
+コマンドの実装方針 sudoと同等な機能をもった関数を実装し、sudoという名前のAliasとして登録する。
+方法 まず、Powershellを起動し、$profileの値を読みます。
+pwsh # PowerShell 6.2.3 # Copyright (c) Microsoft Corporation. All rights reserved. # # https://aka.ms/pscore6-docs # Type &amp;#39;help&amp;#39; to get help. $profile # C:\.....\Microsoft.PowerShell_profile.ps1 続いて読んだパスのファイルを開きます。
+お好みのソフトで開きましょう。因みに私はVisual Studio Codeで開きました。
+code $profile 開けたら以下のようなコードを書きます。
+# 管理者権限で実行する関数 function SudoRun { # $programにコマンドを詰める foreach($arg in $args) { $program = &amp;#34;$program $arg&amp;#34; } # Powershellにより管理者権限で実行 pwsh -command &amp;#34;Start-Process -Verb runas $program&amp;#34; } # 関数をAliasとして登録する Set-Alias -Name sudo -Value SudoRun これを書いたら、そっとそのファイルとPowershellを閉じましょう。</description></item><item><title>[競プロ]役に立つCompareマクロ</title><link>https://caphosra.net/posts/comparemacro/</link><pubDate>Sun, 08 Dec 2019 22:24:27 +0900</pubDate><guid>https://caphosra.net/posts/comparemacro/</guid><description>TL;DR 任意の方法で変数を比較する型を一行で作るためのマクロ
+#define C(t, f) struct C##t { constexpr bool operator()(t const &amp;amp; a, t const &amp;amp; b) const noexcept { return f(a, b); } } structの型名とマクロ名はお好みの名前に付け直してください。
+マクロの説明 競技プログラミングで見かけるgreater&amp;lt;T&amp;gt;とless&amp;lt;T&amp;gt;という型。
+このgreater&amp;lt;T&amp;gt;は大なり記号、less&amp;lt;T&amp;gt;は小なり記号と同じ意味を持っています。
+これらは、たとえば逆順のPriorityQueueを使うときに用いられます。
+// このPriorityQueueは小さい順に出てくる priority_queue&amp;lt;int, vector&amp;lt;int&amp;gt;, greater&amp;lt;int&amp;gt;&amp;gt; pq; // この二つは同じ動作をする priority_queue&amp;lt;int, vector&amp;lt;int&amp;gt;, less&amp;lt;int&amp;gt;&amp;gt; pq; priority_queue&amp;lt;int&amp;gt; pq; しかし、これだけしかないと問題が生じます。
+たとえば、pair&amp;lt;int, int&amp;gt;型でsecondの要素が小さい順に出すPriorityQueueが必要だとします。
+この時にgreater&amp;lt;pair&amp;lt;int, int&amp;gt;&amp;gt;だとfirstの大小関係が優先され期待通りとなりません。
+ではどうすればよいか。
+struct ComparePair { constexpr bool operator()(pair&amp;lt;int, int&amp;gt; const &amp;amp; a, pair&amp;lt;int, int&amp;gt; const &amp;amp; b) const noexcept { if(a.second == b.</description></item><item><title>C#でのusingの使い方を4つ紹介</title><link>https://caphosra.net/posts/csharp-using/</link><pubDate>Sat, 16 Nov 2019 16:40:39 +0900</pubDate><guid>https://caphosra.net/posts/csharp-using/</guid><description>今回はC#で欠かせない存在のusingの使い方を四つに分けて紹介したいと思います。
+早速、始めていきましょう!
+ディレクティブとしてのusing C#でusingと言えば最初に思い浮かべるであろう使い方は、やはりディレクティブとしてのusingでしょう。 usingディレクティブと聞いてピンと来なかった方も以下のコードを見ればわかるはずです。
+// これがディレクティブとしてのusing using System; このusingは、異なる名前空間の中にあるモジュールを短い名前で呼び出す為に使用されます。 例えば、ファイルの読み書きをストリームで行いたいときに
+System.Text.Encoding enc = System.Text.Encoding.GetEncoding(&amp;#34;UTF8&amp;#34;); System.IO.StreamWriter writer = new System.IO.StreamWriter(&amp;#34;./some_file.txt&amp;#34;, false, enc); と書くことはできますが、これでは余りにも冗長で可読性が低くなってしまいます。
+こんな時こそusingです。
+usingを使えば名前空間を省略できます。先ほどの例であれば
+// ファイルの先頭にこれらを書く using System.Text; using System.IO; // Before System.Text.Encoding enc = System.Text.Encoding.GetEncoding(&amp;#34;UTF8&amp;#34;); System.IO.StreamWriter writer = new System.IO.StreamWriter(&amp;#34;./some_file.txt&amp;#34;, false, enc); // After Encoding enc = Encoding.GetEncoding(&amp;#34;UTF8&amp;#34;); StreamWriter writer = new StreamWriter(&amp;#34;./some_file.txt&amp;#34;, false, enc); なんということでしょう。あんなに読みにくかったコードがこんなに簡潔に! (今回の内容とは関係ないですがvarを使うともっと読みやすくなります。)
+忘れられがちなusing static 先程のusingの派生としてusing staticというものがあります。これは クラス名を省略できるようにする為に使われます。例をあげます。
+// ファイルの先頭にこれを書く using static System.Math; // 半径10の円と同じ面積の正方形の一辺の長さを求めたい // Before double radius = 10d; double ans = Math.</description></item></channel></rss>

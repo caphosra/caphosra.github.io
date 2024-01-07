@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Kaprino on caphosra note</title><link>https://caphosra.net/tags/kaprino/</link><description>Recent content in Kaprino on caphosra note</description><generator>Hugo -- gohugo.io</generator><language>ja</language><lastBuildDate>Sat, 03 Oct 2020 21:36:42 +0900</lastBuildDate><atom:link href="https://caphosra.net/tags/kaprino/index.xml" rel="self" type="application/rss+xml"/><item><title>自作言語を作るまでに使えるツールたち</title><link>https://caphosra.net/posts/2020-10-03-original-language/</link><pubDate>Sat, 03 Oct 2020 21:36:42 +0900</pubDate><guid>https://caphosra.net/posts/2020-10-03-original-language/</guid><description>遂に、自作言語kaprinoが無事完成したのでその記念に、自作言語を実装するにあたって 使った物をこの記事で紹介したいと思います。実際に自作言語を作ろうと思っても 何から手を付けていいのか分からなくなってしまうことがあることは想像に難くないので、 その様な人への羅針盤のような記事になることを期待しています。
+ただ、それぞれの使い方まで言及すると記事の量がどえらい事になるので、使い方はいずれ書こうと思います。
+これから自作言語作る予定がある方は必見です!
+もう既に自作言語を実装した経験がある方はお手柔らかにお願いします。
+自作言語kaprinoのソースコードを管理しているrepositoryへのリンクと自作のオンラインコンパイラ(この話はまた別の記事で)です。もし良かったら見てみてください。
+Github kaprino-lang
+Kaprino Online Compiler
+まず自作言語を何故作ろうと思ったのか なぜでしょうね。
+自作言語を作る人がよく言うのは、使っている既存の言語に不満があって自分の好みにあった言語を作ってみたい、という感じでしょうが、 私が自作言語を作ろうと思った理由は、本当になんとなくです。自作言語という言葉の響きによるものだと言えるかもしれませんし、 単純に自分は気付いていないだけで言語に不満があったのかもしれません。
+これは本題ではないのでこれくらいにしておきます。
+言語を動かすまでを大雑把に把握 さて本題に入りましょう。
+これから言語を作るまでに使ったものを紹介してゆく訳ですが、そもそも私の自作言語kaprinoが どのように動いているか説明したいと思います。
+まず、kaprinoは静的な型付けの言語で、実行前にコンパイルを必要とします。
+コンパイル とはソースコードを機械語に変換することです。このコンパイルは通常、以下の様な作業を行います。
+Lexer (字句解析器) と呼ばれるものでソースコードを Token (小さい文字列)に分解 Parser (構文解析器) と呼ばれるものでTokenを AST (抽象構文木)に変換 ASTを低級言語(機械語やアセンブリ言語)に変換 ということはこの三つを行うプログラムを書くことが出来れば自作言語のコンパイラを手にする事ができます!
+しかし、愚直にこれらを一から実装すると途轍もない時間がかかります。そこでライブラリを使って実装していくことになります。
+以下、C++で書くことを前提として話を進めます
+C#とかJavaとかRustとかでもいいんですがそれらは記事の対象外ということで
+1. Lexerを実装する Lexerはこれから行う3つの事の中では最も簡単に実装ができます。自力実装もそこまで難しくないです。
+しかし、今回のテーマはツール紹介ということなので自力でやりたいよ、という方は無視します。
+頑張って下さい。応援しています。
+LexerをC++で実装する時に使われる有名なツール(ライブラリ)として挙げられるのはこの三つです。
+lex (伝統的) flex (再構築されたlex) Antlr4 (新勢力) flexはlexと構文がほとんど同じなので、lexを使うくらいならより新しいflexを使ったほうがいいと思います。
+flexとAntlr4について言えば、どちらを選んでも困ることは起こらないので、それぞれ検索してみて、サンプルコードにシンパシーを感じた方を使えばいいと思います。
+個人的にはAntlr4で書いた方が読みやすいと思ったので、kaprinoにもAntlr4を使っています。
+2. Parserを実装する ParserをC++で実装する時に使われる有名なツール(ライブラリ)として挙げられるのはこの三つです。
+yacc (伝統的) bison (再構築されたyacc) Antlr4 (新勢力) ぱっと見でわかると思いますがlexとyacc、flexとbisonはセットで使うもので、Antlr4はLexerとParserどちらの実装にも使えます。
+別のパターンを組み合わせても出来ないことはないですが、デメリットしかないので大人しくLexerで選択したものと合うものを選びましょう。
+3. ASTから低級言語に変換する これが一番の難所で、自力実装はとても厳しいものとなります。</description></item></channel></rss>

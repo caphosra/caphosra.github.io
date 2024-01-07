@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Hugo on caphosra note</title><link>https://caphosra.net/tags/hugo/</link><description>Recent content in Hugo on caphosra note</description><generator>Hugo -- gohugo.io</generator><language>ja</language><lastBuildDate>Thu, 12 Mar 2020 10:35:31 +0900</lastBuildDate><atom:link href="https://caphosra.net/tags/hugo/index.xml" rel="self" type="application/rss+xml"/><item><title>Hugoで_index.mdの仕様を変更した話</title><link>https://caphosra.net/posts/hugo-index-override/</link><pubDate>Thu, 12 Mar 2020 10:35:31 +0900</pubDate><guid>https://caphosra.net/posts/hugo-index-override/</guid><description>今回は、Hugoについてです。
+_index.mdは標準では限られたコンテンツしか含めないので、それを改造していきたいと思います。
+そもそも_index.mdとは?というところにも触れるので、_index.mdとindex.mdの仕様に疑問がある方は必見です。
+Hugoでの_index.md 以下のようなフォルダがサーバー上にあったとします。
+- contents - old * index.html * old_content.html * index.html * content1.html * content2.html この時に、contents/とcontents/index.htmlはアクセスしたときに同じ様に表示されます。
+同様にcontents/old/とcontents/old/index.htmlも同じ表示となります。
+これは、フォルダにアクセスしたときに、index.htmlが存在するか探索されるからです。
+一方で、Hugoでは、index.mdと_index.mdというこれとほぼ同様の役割を果たすものをが用意されています。
+ただ、これらは厳密には異なり、仕様が異なります。
+ひとつづつ見ていきましょう。
+index.mdの仕様 index.mdはほとんどindex.htmlのようなものであると思ってもらってもいいです。
+- contents - blog * index.md のようにファイルを配置すれば、ビルド後は、[servername]/blog/とアクセスすることもできるし、 [servername]/blog/index.htmlとアクセスすることも出来ます。
+ただ、index.mdには__落とし穴__が&amp;hellip;
+- contents - blog - item * index.md &amp;lt;- NG (index.md被りは禁止) * index.md &amp;lt;- OK * server.md &amp;lt;- NG (server/indexかのように扱われる) - about * index.md このような配置をして、ビルドすると、server.mdとitem/index.mdがビルドされません!
+なぜかと言うと、index.mdは 下層ノードでの重複が禁止 されているからです。
+即ち、blog/はもう既にindex.mdを持っているので、子ディレクトリのindex.mdはビルドされません。 Hugoはserver.mdの様なファイルをserver/index.htmlにビルドしようとするのでserver.mdもビルドされません。
+ややこしいですね。即ち、index.mdをフォルダに置いたら、その子フォルダのMarkdownファイルはすべてビルドされないということです。
+これは前述のHTMLのサーバーとは全く異なる仕様です。
+_index.mdの仕様 一方、_index.mdは</description></item></channel></rss>

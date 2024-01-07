@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>CSharp on caphosra note</title><link>https://caphosra.net/tags/csharp/</link><description>Recent content in CSharp on caphosra note</description><generator>Hugo -- gohugo.io</generator><language>ja</language><lastBuildDate>Sun, 24 May 2020 06:36:13 +0900</lastBuildDate><atom:link href="https://caphosra.net/tags/csharp/index.xml" rel="self" type="application/rss+xml"/><item><title>[C# tips] #3 C#を対話形式で実行しよう</title><link>https://caphosra.net/posts/2020-05-24-csharptips3/</link><pubDate>Sun, 24 May 2020 06:36:13 +0900</pubDate><guid>https://caphosra.net/posts/2020-05-24-csharptips3/</guid><description>簡単な計算をする時にPythonを使っていませんか?
+対話形式で実行するのはとても便利ですよね。しかし、これと同じことはC#でも出来るのです。
+そもそも対話形式とは? ユーザーがプログラムを入力すると、それを評価してくれるのが対話形式です。
+Pythonを使ったことがあれば、以下のような感じです。
+&amp;gt;&amp;gt;&amp;gt; a = 10 &amp;gt;&amp;gt;&amp;gt; a * a * 3.14 314.0 その場で計算してくれるので、書き捨てコードとしてとても有用です。(筆者は素数判定とかを無性にしたくなった時に使っています。)
+C#って静的言語だから無理なんじゃないですか? Pythonは動的実行をしている(実行時に型変換等を行っている)のに対して、
+C#はC++などと同じで静的言語であるので実行にはコンパイルが不可欠なはずです。
+コンパイルが必要ということは、時間がかかりすぎるので対話形式で実行するのには致命的&amp;hellip;
+Wikipedia 動的プログラミング言語
+しかし、C#を動的に実行したいと考える人はいるようで
+C#を対話形式で実行する拡張 世の中にはC#を対話形式で実行したいと思う人が少なからずいるのでしょう。C#を標準で対話形式で実行することは出来ませんが、 拡張を使用することでできるようになります。
+いくつか拡張が存在するのでご紹介します。
+C# REPL 有名な対話形式の拡張として、オープンソースのC#の先駆けとなったMonoプロジェクトが提供する C# REPLがあります。
+使い方は簡単です。Monoをインストールして
+$ csharp と実行するだけです。
+以下の様にC#を対話形式で実行することが可能です。
+$ csharp csharp&amp;gt; using System; csharp&amp;gt; var a = 10; csharp&amp;gt; a * a * Math.PI; 314.159265358979 Mono C#を使用している方は今すぐ試すことができます。
+dotnet script C# REPLはMonoプロジェクトのものでした。一方でこちらは .NET Coreで使うことができるものです。
+dotnet scriptは .NET CoreにGlobal toolとして以下のコマンドを使用してインストール出来ます。
+.NET Core 2.</description></item><item><title>[C# tips] #2 privateなメンバーにアクセスしよう</title><link>https://caphosra.net/posts/2020-04-10-csharptips2/</link><pubDate>Fri, 10 Apr 2020 18:08:04 +0900</pubDate><guid>https://caphosra.net/posts/2020-04-10-csharptips2/</guid><description>これで二回目です。前回はC#のLinqに関する軽い紹介を書きました。
+今日のテーマは&amp;quot;privateなメンバーにアクセスしよう&amp;quot;です。
+注意 この記事ではSystem.Reflectionを使用してprivateなメンバーにアクセスする方法をお伝えします。ただ、自己責任でお願いします。(危ない操作ではありませんが、人のコードに対して行えば著作権侵害とかになりえるので。)
+突然ですが問題です あなたは以下のようなクラスのインスタンスを与えられました。
+このクラスにはどうやらfloat型の変数があってそれは秘密の値で初期化されているようです。
+秘密にされると暴きたくなるのが人間の性、Capra君はどうしても秘密の値を知りたいです。
+果たしてどうすれば秘密の値を手に入れられるでしょうか?
+public class HasSecret { private float ????? = ?????; public float dummy1 = 3.14f; private int dummy2 = 314; } ならディスアセンブルすれば&amp;hellip;? 確かに、dnSpyというC#で凄まじい威力を発揮するディスアセンブラを使えば瞬殺できます。ただ、やはりC#のコードで解決したいですよね。(というより、dnSpy使うのなら記事の意味がなくなってしまいそう&amp;hellip;)
+GitHub - 0xd4d/dnSpy
+ということでC#のコードからHasSecret内の変数にアクセスしてみましょう。
+まずは愚直にアクセス 試しに、dummy2に何も考えずにアクセスしてみましょう。
+var secret = new HasSecret(); Console.WriteLine(secert.dummy2); error CS0122: &amp;#39;HasSecret.dummy2&amp;#39; is inaccessible due to its protection level 当然ながらエラーが発生しました。これでアクセス出来たらライブラリ開発者はたまったものじゃないですよね。せっかくの実装の隠蔽が意味をなさなくなりますから。
+また、この方法だと、privateな変数にアクセスするどころか変数名さえわかりません。
+今回は変数名さえわからない状態なので、どうすればいいのでしょうか&amp;hellip;
+ここでSystem.Reflection ここから、System.Reflectionを使っていきます。
+System.Reflectionは型の情報を使用して動的に物事を処理する方法を提供するクラスを揃えたバリューパックのような名前空間です。
+それではそれらを使用して、privateな変数にアクセスしていきましょう。
+まず、GetType関数を使って動的に型を取得します。静的に型を取得したい方はtypeofキーワードを利用するといいと思います。
+受け取った型の型はSystem.Typeとなります。
+// using System.Reflection; var secret = new HasSecret(); var type = secret.</description></item><item><title>[C# tips] #1 C#でSQLみたいな構文?</title><link>https://caphosra.net/posts/2020-03-20-onepoint-csharp/</link><pubDate>Mon, 30 Mar 2020 16:26:36 +0900</pubDate><guid>https://caphosra.net/posts/2020-03-20-onepoint-csharp/</guid><description>30億のデバイスで動くJavaの方がC#より強そう
+C#ってWin APIを呼ぶやつ&amp;hellip;?
+このような事をいわれたことがあったので、対抗策として、C#の豆知識や小話(というほどでもない)を紹介するシリーズを始めようと思った次第です。
+これが、記念すべき第一回です。
+本編 じつはC#にはSQL likeな構文が用意されています、というのが今回の話です。(あ、これ知ってるよという方、黙ってこのページを閉じてください)
+SQLと聞くと&amp;hellip;
+データベースの操作をするやつ クエリを投げるやつ 実はSQLは言語そのもののことではない など色々思い浮かべると思います。
+SQLはデータを処理するのに特化した言語です。SQLでゲームを作るなどという話は聞いたことがありません。
+SQLでデータを取り出してみる 例えば、SQLのデータベースに以下のようなテーブルがあったとします。
+Table名 : TestResults
+math english name 50 100 A 60 70 B 80 80 C 40 90 D この時、mathが50以上なものを取り出し、englishの値の降順でソートしたいと思います。
+SELECT math, english FROM TestResults WHERE math &amp;gt;= 50 ORDER BY english DESC; これを行うSQLの文はこのようになります。ここでの解説は本題ではないので飛ばします。詳しくはググって下さい。
+C#でこれができたなら&amp;hellip; できます。System.Linqを使用しましょう。
+まず、Listを用意しましょう。Tupleを使用しました。古いバージョンのC#をお使いの方と匿名型大好きな方、すみません。
+// using System; // using System.Collections.Generic; var testResults = new List&amp;lt;(int math, int english, string name)&amp;gt;() { (50, 100, &amp;#34;A&amp;#34;), (60, 70, &amp;#34;B&amp;#34;), (80, 80, &amp;#34;C&amp;#34;), (40, 90, &amp;#34;D&amp;#34;) }; そして、C#でSQL likeに同じ処理を行ってみましょう。</description></item><item><title>Avalonia UIで画像を使ったボタンを作成する方法</title><link>https://caphosra.net/posts/2020-03-29-avalonia-image-button/</link><pubDate>Sun, 29 Mar 2020 10:17:52 +0900</pubDate><guid>https://caphosra.net/posts/2020-03-29-avalonia-image-button/</guid><description>今回は、知らないと難しい、Avalonia UIで画像を使ったボタンを作成していきます。
+前置きはさっさと飛ばして、本題に入りましょう。
+前提条件 もう既にAvaloniaのプロジェクトを作っていること。 ボタンにする画像を選んでいること。 画像の準備 私は3枚の画像を選びました。通常の見た目と、Hover時の見た目と、Click時の見た目です。1枚で全ての場合をやってもいいんですが、Userが見た目からボタンとして認識してくれない危険性があるので推奨はしません。
+画像はAssetsフォルダに入れます。
+もし、Assetsフォルダがない!という場合は、Assetsフォルダを作ってから、プロジェクトファイルに
+&amp;lt;ItemGroup&amp;gt; &amp;lt;AvaloniaResource Include=&amp;#34;Assets\*&amp;#34;/&amp;gt; &amp;lt;/ItemGroup&amp;gt; と追記してください。
+UserControlを作る 先ずは、UserControlを作成しましょう。名前は適宜読み替えてください。
+[Visual Studio]
+Right click your project&amp;rsquo;s Views folder in Solution Explorer Select the Add -&amp;gt; New Item menu item In the dialog that appears, navigate to the &amp;ldquo;Avalonia&amp;rdquo; section in the category tree Select &amp;ldquo;User Control (Avalonia)&amp;rdquo; Enter TodoListView as the &amp;ldquo;Name&amp;rdquo; Click the &amp;ldquo;Add&amp;rdquo; button [.NET Core]
+dotnet new avalonia.usercontrol -o Views -n TodoListView --namespace Todo.</description></item><item><title>C#でのusingの使い方を4つ紹介</title><link>https://caphosra.net/posts/csharp-using/</link><pubDate>Sat, 16 Nov 2019 16:40:39 +0900</pubDate><guid>https://caphosra.net/posts/csharp-using/</guid><description>今回はC#で欠かせない存在のusingの使い方を四つに分けて紹介したいと思います。
+早速、始めていきましょう!
+ディレクティブとしてのusing C#でusingと言えば最初に思い浮かべるであろう使い方は、やはりディレクティブとしてのusingでしょう。 usingディレクティブと聞いてピンと来なかった方も以下のコードを見ればわかるはずです。
+// これがディレクティブとしてのusing using System; このusingは、異なる名前空間の中にあるモジュールを短い名前で呼び出す為に使用されます。 例えば、ファイルの読み書きをストリームで行いたいときに
+System.Text.Encoding enc = System.Text.Encoding.GetEncoding(&amp;#34;UTF8&amp;#34;); System.IO.StreamWriter writer = new System.IO.StreamWriter(&amp;#34;./some_file.txt&amp;#34;, false, enc); と書くことはできますが、これでは余りにも冗長で可読性が低くなってしまいます。
+こんな時こそusingです。
+usingを使えば名前空間を省略できます。先ほどの例であれば
+// ファイルの先頭にこれらを書く using System.Text; using System.IO; // Before System.Text.Encoding enc = System.Text.Encoding.GetEncoding(&amp;#34;UTF8&amp;#34;); System.IO.StreamWriter writer = new System.IO.StreamWriter(&amp;#34;./some_file.txt&amp;#34;, false, enc); // After Encoding enc = Encoding.GetEncoding(&amp;#34;UTF8&amp;#34;); StreamWriter writer = new StreamWriter(&amp;#34;./some_file.txt&amp;#34;, false, enc); なんということでしょう。あんなに読みにくかったコードがこんなに簡潔に! (今回の内容とは関係ないですがvarを使うともっと読みやすくなります。)
+忘れられがちなusing static 先程のusingの派生としてusing staticというものがあります。これは クラス名を省略できるようにする為に使われます。例をあげます。
+// ファイルの先頭にこれを書く using static System.Math; // 半径10の円と同じ面積の正方形の一辺の長さを求めたい // Before double radius = 10d; double ans = Math.</description></item></channel></rss>

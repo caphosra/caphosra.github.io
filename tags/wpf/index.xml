@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>WPF on caphosra note</title><link>https://caphosra.net/tags/wpf/</link><description>Recent content in WPF on caphosra note</description><generator>Hugo -- gohugo.io</generator><language>ja</language><lastBuildDate>Sun, 29 Mar 2020 10:17:52 +0900</lastBuildDate><atom:link href="https://caphosra.net/tags/wpf/index.xml" rel="self" type="application/rss+xml"/><item><title>Avalonia UIで画像を使ったボタンを作成する方法</title><link>https://caphosra.net/posts/2020-03-29-avalonia-image-button/</link><pubDate>Sun, 29 Mar 2020 10:17:52 +0900</pubDate><guid>https://caphosra.net/posts/2020-03-29-avalonia-image-button/</guid><description>今回は、知らないと難しい、Avalonia UIで画像を使ったボタンを作成していきます。
+前置きはさっさと飛ばして、本題に入りましょう。
+前提条件 もう既にAvaloniaのプロジェクトを作っていること。 ボタンにする画像を選んでいること。 画像の準備 私は3枚の画像を選びました。通常の見た目と、Hover時の見た目と、Click時の見た目です。1枚で全ての場合をやってもいいんですが、Userが見た目からボタンとして認識してくれない危険性があるので推奨はしません。
+画像はAssetsフォルダに入れます。
+もし、Assetsフォルダがない!という場合は、Assetsフォルダを作ってから、プロジェクトファイルに
+&amp;lt;ItemGroup&amp;gt; &amp;lt;AvaloniaResource Include=&amp;#34;Assets\*&amp;#34;/&amp;gt; &amp;lt;/ItemGroup&amp;gt; と追記してください。
+UserControlを作る 先ずは、UserControlを作成しましょう。名前は適宜読み替えてください。
+[Visual Studio]
+Right click your project&amp;rsquo;s Views folder in Solution Explorer Select the Add -&amp;gt; New Item menu item In the dialog that appears, navigate to the &amp;ldquo;Avalonia&amp;rdquo; section in the category tree Select &amp;ldquo;User Control (Avalonia)&amp;rdquo; Enter TodoListView as the &amp;ldquo;Name&amp;rdquo; Click the &amp;ldquo;Add&amp;rdquo; button [.NET Core]
+dotnet new avalonia.usercontrol -o Views -n TodoListView --namespace Todo.</description></item></channel></rss>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>WSL2 on caphosra note</title><link>https://caphosra.net/tags/wsl2/</link><description>Recent content in WSL2 on caphosra note</description><generator>Hugo -- gohugo.io</generator><language>ja</language><lastBuildDate>Sat, 14 Mar 2020 20:04:43 +0900</lastBuildDate><atom:link href="https://caphosra.net/tags/wsl2/index.xml" rel="self" type="application/rss+xml"/><item><title>WSL2を使えるようにする</title><link>https://caphosra.net/posts/wsl2-setup/</link><pubDate>Sat, 14 Mar 2020 20:04:43 +0900</pubDate><guid>https://caphosra.net/posts/wsl2-setup/</guid><description>Windows上でLinuxをエミュレートしてくれるWSLが進化を遂げ&amp;hellip;
+遂にWSL2が使用出来るようになりました!やったね!
+このニュースを聞いたら、当然プログラマー的には使ってみたくなりますよね。
+ということで、気楽にインストールしようとしたら&amp;hellip;&amp;ldquo;あれ?コマンドがないよ&amp;quot;みたいにWindowsに怒られてしまいました。
+WSL2を使用出来るようにするのは一筋縄ではいかなかったので使用できるまでの道筋を紹介していきたいと思います。
+WSL2はまだ安定していない様なので あくまで自己責任で お願いします。
+まず、Windowsをアップデート 実は、私はこれを忘れて数分溶かしました。
+WSL 2 is only available in Windows 10 builds 18917 or higher
+Microsoft - WSL2 Install
+なるほど、Windows 10のビルド番号18917番以降を持っている必要があるのですね。
+しかしながら、ただ、愚直にWindowsをアップデートしても、現段階では18917番以前のものになってしまいます。(バージョン確認にはwinverコマンドを)
+それを解決するために、Windows Insiderに加入しましょう。
+これは、Windowsの新しいバージョンをMicrosoftが配布し、問題を見つけたら報告するというシステムです。
+試験的な内容をいち早く使うことが出来ます。
+Microsoftアカウントを持っていると登録は一瞬で終わります。なんと、無料　です。
+続いて設定を開きます。そして&amp;quot;更新とセキュリティ&amp;quot;をクリック。
+&amp;ldquo;Windows Insider Program&amp;quot;をクリックして、ログインしてください。
+Insiderの設定は&amp;quot;スロー&amp;quot;で問題ないと思います。
+続いて、&amp;ldquo;Windows Update&amp;quot;に移って、&amp;ldquo;更新プログラムのチェック&amp;quot;をクリック。 先程までなかった、より新しいWindows 10のバージョンへの更新ができるようになります! これで、先程のWindowsバージョン問題は解決です。あとは、ひたすらWindows Updateを見る会です。
+WSLをインストールしていく WSLのインストール方法は通常の方法と同じなので割愛します。
+以下のサイトがわかりやすかったです。(丸投げ)
+Qitta - Windows Subsystem for Linuxをインストールしてみよう！ @Aruneko
+本当にWSLのインストールと同じです。
+WSLを既にインストールしているよ、という方はここをスルーしても大丈夫です。
+WSL2へ変更しましょう Microsoft - Updating WSL2 Linux kernel
+このサイトに飛んで、WSL2のカーネルを入手します。
+ダウンロードしてきたインストーラーを実行しましょう!
+インストールが終わったら長かったWSL2セットアップももうすぐおしまいです。
+好きなターミナルを開いて以下のコマンドを打ち込んで実行してください!
+wsl --set-default-version 2 おめでとうございます!</description></item></channel></rss>

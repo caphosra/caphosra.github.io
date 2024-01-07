@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>CSharp tips on caphosra note</title><link>https://caphosra.net/series/csharp-tips/</link><description>Recent content in CSharp tips on caphosra note</description><generator>Hugo -- gohugo.io</generator><language>ja</language><lastBuildDate>Sun, 24 May 2020 06:36:13 +0900</lastBuildDate><atom:link href="https://caphosra.net/series/csharp-tips/index.xml" rel="self" type="application/rss+xml"/><item><title>[C# tips] #3 C#を対話形式で実行しよう</title><link>https://caphosra.net/posts/2020-05-24-csharptips3/</link><pubDate>Sun, 24 May 2020 06:36:13 +0900</pubDate><guid>https://caphosra.net/posts/2020-05-24-csharptips3/</guid><description>簡単な計算をする時にPythonを使っていませんか?
+対話形式で実行するのはとても便利ですよね。しかし、これと同じことはC#でも出来るのです。
+そもそも対話形式とは? ユーザーがプログラムを入力すると、それを評価してくれるのが対話形式です。
+Pythonを使ったことがあれば、以下のような感じです。
+&amp;gt;&amp;gt;&amp;gt; a = 10 &amp;gt;&amp;gt;&amp;gt; a * a * 3.14 314.0 その場で計算してくれるので、書き捨てコードとしてとても有用です。(筆者は素数判定とかを無性にしたくなった時に使っています。)
+C#って静的言語だから無理なんじゃないですか? Pythonは動的実行をしている(実行時に型変換等を行っている)のに対して、
+C#はC++などと同じで静的言語であるので実行にはコンパイルが不可欠なはずです。
+コンパイルが必要ということは、時間がかかりすぎるので対話形式で実行するのには致命的&amp;hellip;
+Wikipedia 動的プログラミング言語
+しかし、C#を動的に実行したいと考える人はいるようで
+C#を対話形式で実行する拡張 世の中にはC#を対話形式で実行したいと思う人が少なからずいるのでしょう。C#を標準で対話形式で実行することは出来ませんが、 拡張を使用することでできるようになります。
+いくつか拡張が存在するのでご紹介します。
+C# REPL 有名な対話形式の拡張として、オープンソースのC#の先駆けとなったMonoプロジェクトが提供する C# REPLがあります。
+使い方は簡単です。Monoをインストールして
+$ csharp と実行するだけです。
+以下の様にC#を対話形式で実行することが可能です。
+$ csharp csharp&amp;gt; using System; csharp&amp;gt; var a = 10; csharp&amp;gt; a * a * Math.PI; 314.159265358979 Mono C#を使用している方は今すぐ試すことができます。
+dotnet script C# REPLはMonoプロジェクトのものでした。一方でこちらは .NET Coreで使うことができるものです。
+dotnet scriptは .NET CoreにGlobal toolとして以下のコマンドを使用してインストール出来ます。
+.NET Core 2.</description></item><item><title>[C# tips] #2 privateなメンバーにアクセスしよう</title><link>https://caphosra.net/posts/2020-04-10-csharptips2/</link><pubDate>Fri, 10 Apr 2020 18:08:04 +0900</pubDate><guid>https://caphosra.net/posts/2020-04-10-csharptips2/</guid><description>これで二回目です。前回はC#のLinqに関する軽い紹介を書きました。
+今日のテーマは&amp;quot;privateなメンバーにアクセスしよう&amp;quot;です。
+注意 この記事ではSystem.Reflectionを使用してprivateなメンバーにアクセスする方法をお伝えします。ただ、自己責任でお願いします。(危ない操作ではありませんが、人のコードに対して行えば著作権侵害とかになりえるので。)
+突然ですが問題です あなたは以下のようなクラスのインスタンスを与えられました。
+このクラスにはどうやらfloat型の変数があってそれは秘密の値で初期化されているようです。
+秘密にされると暴きたくなるのが人間の性、Capra君はどうしても秘密の値を知りたいです。
+果たしてどうすれば秘密の値を手に入れられるでしょうか?
+public class HasSecret { private float ????? = ?????; public float dummy1 = 3.14f; private int dummy2 = 314; } ならディスアセンブルすれば&amp;hellip;? 確かに、dnSpyというC#で凄まじい威力を発揮するディスアセンブラを使えば瞬殺できます。ただ、やはりC#のコードで解決したいですよね。(というより、dnSpy使うのなら記事の意味がなくなってしまいそう&amp;hellip;)
+GitHub - 0xd4d/dnSpy
+ということでC#のコードからHasSecret内の変数にアクセスしてみましょう。
+まずは愚直にアクセス 試しに、dummy2に何も考えずにアクセスしてみましょう。
+var secret = new HasSecret(); Console.WriteLine(secert.dummy2); error CS0122: &amp;#39;HasSecret.dummy2&amp;#39; is inaccessible due to its protection level 当然ながらエラーが発生しました。これでアクセス出来たらライブラリ開発者はたまったものじゃないですよね。せっかくの実装の隠蔽が意味をなさなくなりますから。
+また、この方法だと、privateな変数にアクセスするどころか変数名さえわかりません。
+今回は変数名さえわからない状態なので、どうすればいいのでしょうか&amp;hellip;
+ここでSystem.Reflection ここから、System.Reflectionを使っていきます。
+System.Reflectionは型の情報を使用して動的に物事を処理する方法を提供するクラスを揃えたバリューパックのような名前空間です。
+それではそれらを使用して、privateな変数にアクセスしていきましょう。
+まず、GetType関数を使って動的に型を取得します。静的に型を取得したい方はtypeofキーワードを利用するといいと思います。
+受け取った型の型はSystem.Typeとなります。
+// using System.Reflection; var secret = new HasSecret(); var type = secret.</description></item><item><title>[C# tips] #1 C#でSQLみたいな構文?</title><link>https://caphosra.net/posts/2020-03-20-onepoint-csharp/</link><pubDate>Mon, 30 Mar 2020 16:26:36 +0900</pubDate><guid>https://caphosra.net/posts/2020-03-20-onepoint-csharp/</guid><description>30億のデバイスで動くJavaの方がC#より強そう
+C#ってWin APIを呼ぶやつ&amp;hellip;?
+このような事をいわれたことがあったので、対抗策として、C#の豆知識や小話(というほどでもない)を紹介するシリーズを始めようと思った次第です。
+これが、記念すべき第一回です。
+本編 じつはC#にはSQL likeな構文が用意されています、というのが今回の話です。(あ、これ知ってるよという方、黙ってこのページを閉じてください)
+SQLと聞くと&amp;hellip;
+データベースの操作をするやつ クエリを投げるやつ 実はSQLは言語そのもののことではない など色々思い浮かべると思います。
+SQLはデータを処理するのに特化した言語です。SQLでゲームを作るなどという話は聞いたことがありません。
+SQLでデータを取り出してみる 例えば、SQLのデータベースに以下のようなテーブルがあったとします。
+Table名 : TestResults
+math english name 50 100 A 60 70 B 80 80 C 40 90 D この時、mathが50以上なものを取り出し、englishの値の降順でソートしたいと思います。
+SELECT math, english FROM TestResults WHERE math &amp;gt;= 50 ORDER BY english DESC; これを行うSQLの文はこのようになります。ここでの解説は本題ではないので飛ばします。詳しくはググって下さい。
+C#でこれができたなら&amp;hellip; できます。System.Linqを使用しましょう。
+まず、Listを用意しましょう。Tupleを使用しました。古いバージョンのC#をお使いの方と匿名型大好きな方、すみません。
+// using System; // using System.Collections.Generic; var testResults = new List&amp;lt;(int math, int english, string name)&amp;gt;() { (50, 100, &amp;#34;A&amp;#34;), (60, 70, &amp;#34;B&amp;#34;), (80, 80, &amp;#34;C&amp;#34;), (40, 90, &amp;#34;D&amp;#34;) }; そして、C#でSQL likeに同じ処理を行ってみましょう。</description></item></channel></rss>

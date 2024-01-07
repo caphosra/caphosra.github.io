@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Powershell on caphosra note</title><link>https://caphosra.net/tags/powershell/</link><description>Recent content in Powershell on caphosra note</description><generator>Hugo -- gohugo.io</generator><language>ja</language><lastBuildDate>Wed, 11 Dec 2019 22:28:26 +0900</lastBuildDate><atom:link href="https://caphosra.net/tags/powershell/index.xml" rel="self" type="application/rss+xml"/><item><title>Powershellでsudoしてみたい話</title><link>https://caphosra.net/posts/powershell-sudo/</link><pubDate>Wed, 11 Dec 2019 22:28:26 +0900</pubDate><guid>https://caphosra.net/posts/powershell-sudo/</guid><description>今回紹介することはタイトルそのままです。
+PowershellではBashのsudoのように簡単に管理者権限で実行出来るようにするコマンドがありません。
+そこで、それとほぼ同等なものを作りたい、というのが今回の話題です。
+早速、始めて行きましょう。
+手元の環境 Powershell 6.2.3
+私が使っているPowershellはWindowsに標準でインストールされている.NET Framework依存のものではなく、 .NET Core依存のものです。これはWindowsだけでなくmacOSやLinuxでも動くのでWindows以外を使っている方もインストール出来ます。
+以降、Powershellの実行ファイル名をpwsh.exeとしていますが、.NET Framework依存のものをお使いの方は適宜powershell.exeで読み替えてください。
+コマンドの実装方針 sudoと同等な機能をもった関数を実装し、sudoという名前のAliasとして登録する。
+方法 まず、Powershellを起動し、$profileの値を読みます。
+pwsh # PowerShell 6.2.3 # Copyright (c) Microsoft Corporation. All rights reserved. # # https://aka.ms/pscore6-docs # Type &amp;#39;help&amp;#39; to get help. $profile # C:\.....\Microsoft.PowerShell_profile.ps1 続いて読んだパスのファイルを開きます。
+お好みのソフトで開きましょう。因みに私はVisual Studio Codeで開きました。
+code $profile 開けたら以下のようなコードを書きます。
+# 管理者権限で実行する関数 function SudoRun { # $programにコマンドを詰める foreach($arg in $args) { $program = &amp;#34;$program $arg&amp;#34; } # Powershellにより管理者権限で実行 pwsh -command &amp;#34;Start-Process -Verb runas $program&amp;#34; } # 関数をAliasとして登録する Set-Alias -Name sudo -Value SudoRun これを書いたら、そっとそのファイルとPowershellを閉じましょう。</description></item></channel></rss>
