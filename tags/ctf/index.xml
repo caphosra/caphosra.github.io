@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>CTF on caphosra note</title><link>https://caphosra.net/tags/ctf/</link><description>Recent content in CTF on caphosra note</description><generator>Hugo</generator><language>ja</language><lastBuildDate>Sun, 22 Sep 2024 22:36:38 +0900</lastBuildDate><atom:link href="https://caphosra.net/tags/ctf/index.xml" rel="self" type="application/rss+xml"/><item><title>[CTF] IERAE CTF 2024 writeup</title><link>https://caphosra.net/posts/2024-09-22-ierae-ctf/</link><pubDate>Sun, 22 Sep 2024 16:10:12 +0900</pubDate><guid>https://caphosra.net/posts/2024-09-22-ierae-ctf/</guid><description>&lt;script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">&lt;/script>
+&lt;p>caphosraです. IERAE CTF 2024にTSGとして参加しました. Cryptoのderangement, Weak PRNGとmiscのgnalangの計3問解いたのでwriteupを書きたいと思います.&lt;/p>
+&lt;p>分量と難易度的にgnalangのwriteupがメインになります.&lt;/p>
+&lt;h2 id="crypto-derangement">
+ Crypto: derangement
+ &lt;a class="heading-link" href="#crypto-derangement">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="見出しへのリンク">&lt;/i>
+ &lt;span class="sr-only">見出しへのリンク&lt;/span>
+ &lt;/a>
+&lt;/h2>
+&lt;p>長さ15のランダムな文字列をランダムに並べ替えたものが与えられ, その元の文字列を求める問題. 並び替えた文字列のどの文字も元の文字列と異なることが保証されている.&lt;/p>
+&lt;p>とりあえず回数上限近くまで並べ替え後の文字列を受け取って, 各 \(i\) 文字目についてありえない文字のリストを構成する. その上で, そのリストに含まれていない文字を順に並べていけば良い.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#007f7f">#!/usr/bin/python3&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#fff;font-weight:bold">from&lt;/span> ptrlib &lt;span style="color:#fff;font-weight:bold">import&lt;/span> *
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>proc = Socket(&lt;span style="color:#0ff;font-weight:bold">&amp;#34;XXX.XXX.XXX.XXX&amp;#34;&lt;/span>, &lt;span style="color:#ff0;font-weight:bold">55555&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>LENGTH = &lt;span style="color:#ff0;font-weight:bold">15&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>LOOP = &lt;span style="color:#ff0;font-weight:bold">280&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>banned = &lt;span style="color:#fff;font-weight:bold">list&lt;/span>()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#fff;font-weight:bold">for&lt;/span> _ in &lt;span style="color:#fff;font-weight:bold">range&lt;/span>(LENGTH):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> banned.append(&lt;span style="color:#fff;font-weight:bold">list&lt;/span>())
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>word = &lt;span style="color:#fff;font-weight:bold">None&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#fff;font-weight:bold">for&lt;/span> _ in &lt;span style="color:#fff;font-weight:bold">range&lt;/span>(LOOP):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> proc.sendlineafter(&lt;span style="color:#0ff;font-weight:bold">&amp;#34;&amp;gt; &amp;#34;&lt;/span>, &lt;span style="color:#0ff;font-weight:bold">&amp;#34;1&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> proc.recvuntil(&lt;span style="color:#0ff;font-weight:bold">&amp;#34;hint: &amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> hint = proc.recvline().decode()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#fff;font-weight:bold">if&lt;/span> not word:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> word = hint
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#fff;font-weight:bold">assert&lt;/span> &lt;span style="color:#fff;font-weight:bold">len&lt;/span>(hint) == LENGTH
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#fff;font-weight:bold">for&lt;/span> i in &lt;span style="color:#fff;font-weight:bold">range&lt;/span>(LENGTH):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#fff;font-weight:bold">if&lt;/span> hint[i] not in banned[i]:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> banned[i].append(hint[i])
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>determined = &lt;span style="color:#0ff;font-weight:bold">&amp;#34;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#fff;font-weight:bold">for&lt;/span> i in &lt;span style="color:#fff;font-weight:bold">range&lt;/span>(LENGTH):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#fff;font-weight:bold">print&lt;/span>(&lt;span style="color:#0ff;font-weight:bold">f&lt;/span>&lt;span style="color:#0ff;font-weight:bold">&amp;#34;len(banned[&lt;/span>&lt;span style="color:#0ff;font-weight:bold">{&lt;/span>i&lt;span style="color:#0ff;font-weight:bold">}&lt;/span>&lt;span style="color:#0ff;font-weight:bold">]) = &lt;/span>&lt;span style="color:#0ff;font-weight:bold">{&lt;/span>&lt;span style="color:#fff;font-weight:bold">len&lt;/span>(banned[i])&lt;span style="color:#0ff;font-weight:bold">}&lt;/span>&lt;span style="color:#0ff;font-weight:bold">&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#fff;font-weight:bold">if&lt;/span> &lt;span style="color:#fff;font-weight:bold">len&lt;/span>(banned[i]) != LENGTH - &lt;span style="color:#ff0;font-weight:bold">1&lt;/span>:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> proc.close()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#fff;font-weight:bold">for&lt;/span> c in word:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#fff;font-weight:bold">if&lt;/span> c not in banned[i]:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> determined += c
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#fff;font-weight:bold">print&lt;/span>(&lt;span style="color:#0ff;font-weight:bold">f&lt;/span>&lt;span style="color:#0ff;font-weight:bold">&amp;#34;magic word = &lt;/span>&lt;span style="color:#0ff;font-weight:bold">{&lt;/span>determined&lt;span style="color:#0ff;font-weight:bold">}&lt;/span>&lt;span style="color:#0ff;font-weight:bold">&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>proc.sendlineafter(&lt;span style="color:#0ff;font-weight:bold">&amp;#34;&amp;gt; &amp;#34;&lt;/span>, &lt;span style="color:#0ff;font-weight:bold">&amp;#34;2&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>proc.sendlineafter(&lt;span style="color:#0ff;font-weight:bold">&amp;#34;&amp;gt; &amp;#34;&lt;/span>, determined)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>proc.interactive()
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>実行結果は以下の通り.&lt;/p></description></item><item><title>[CTF] SECCON CTF 2023 Finals Domestic writeup</title><link>https://caphosra.net/posts/2024-01-07-seccon-final/</link><pubDate>Sun, 07 Jan 2024 20:14:04 +0900</pubDate><guid>https://caphosra.net/posts/2024-01-07-seccon-final/</guid><description>&lt;script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">&lt;/script>
+&lt;p>SECCON CTF 2023の国内決勝にTSGとして参加しました. 1.5問くらい解いたのでwriteupを書きたいと思います.&lt;/p>
+&lt;h2 id="reversing-remov">
+ Reversing: ReMOV
+ &lt;a class="heading-link" href="#reversing-remov">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="見出しへのリンク">&lt;/i>
+ &lt;span class="sr-only">見出しへのリンク&lt;/span>
+ &lt;/a>
+&lt;/h2>
+&lt;p>Reversingの問題. 大量の意味のないmov, movaps命令が並んでいるバイナリが与えられ, そのバイナリが受理するFlagを考えるというもの.&lt;/p>
+&lt;p>GhidraでさっとDisassembleして読もうとしたが, 当然まともに読めそうになかったのでgdbで実行しながら怪しい部分を探した. まず, 最初の方は文字列の長さを見て32文字であるかを確認する部分がある. その次に, 文字列の先頭が&lt;code>SECCON{&lt;/code>であるかどうかを判定する部分と最後が&lt;code>}&lt;/code>で終了しているか確認する部分がある.&lt;/p>
+&lt;p>ここまでは, 適当に&lt;code>SECCON{AAA....A}&lt;/code>のような長さ32の文字列を与えておけば特に問題はない. さて, ここから引数を8bytesごとにチェックするパートに入る. 具体的には8bytesを切り出して, ある固定値とxorを取ってから別の固定値と比較する操作が4回行われる. 一見, もう一度xorを取ることで容易にFlagを復号できそうだが, このままでは先頭8bytesの値が&lt;code>L\xbd~\xb3HN{y&lt;/code>でなければならなくなり, これは先頭8bytesが&lt;code>SECCON{&lt;/code>であることと矛盾する.&lt;/p>
+&lt;p>もう一度用心深く探ってみると, 途中で不審にptraceを呼んでいる部分がある. これでgdbのようなデバッガーをattachしているかどうか判定し, その返り値によってxorをとる固定値を変更しているようである. そこで, ptraceが呼ばれた後に&lt;code>rax&lt;/code>を変えてしまえば問題ないだろうと推測し, 実際うまく行った. 以下のように書けばこれを実現できる.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>gdb.execute(&lt;span style="color:#0ff;font-weight:bold">&amp;#39;b *0x555555555096&amp;#39;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>gdb.execute(&lt;span style="color:#0ff;font-weight:bold">&amp;#39;c&amp;#39;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>gdb.execute(&lt;span style="color:#0ff;font-weight:bold">&amp;#39;set $rax = 0&amp;#39;&lt;/span>)
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>実際にその場で書いたソースコードはこんな感じ. 8bytesごとに答えが出てくる.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#007f7f">#!/bin/python3&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#fff;font-weight:bold">import&lt;/span> gdb
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#fff;font-weight:bold">import&lt;/span> re
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>flag = &lt;span style="color:#0ff;font-weight:bold">b&lt;/span>&lt;span style="color:#0ff;font-weight:bold">&amp;#34;SECCON&lt;/span>&lt;span style="color:#0ff;font-weight:bold">{y3t_4n0th3r_m0vfuAAAAAAA}&lt;/span>&lt;span style="color:#0ff;font-weight:bold">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>gdb.execute(&lt;span style="color:#0ff;font-weight:bold">&amp;#39;file ./remov&amp;#39;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>o = gdb.execute(&lt;span style="color:#0ff;font-weight:bold">f&lt;/span>&lt;span style="color:#0ff;font-weight:bold">&amp;#39;starti &lt;/span>&lt;span style="color:#0ff;font-weight:bold">{&lt;/span>flag.decode()&lt;span style="color:#0ff;font-weight:bold">}&lt;/span>&lt;span style="color:#0ff;font-weight:bold">&amp;#39;&lt;/span>, to_string=&lt;span style="color:#fff;font-weight:bold">True&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#fff;font-weight:bold">print&lt;/span>(o)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>gdb.execute(&lt;span style="color:#0ff;font-weight:bold">&amp;#39;b *0x555555555096&amp;#39;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>gdb.execute(&lt;span style="color:#0ff;font-weight:bold">&amp;#39;b *0x555555555605&amp;#39;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>gdb.execute(&lt;span style="color:#0ff;font-weight:bold">&amp;#39;b *0x555555555637&amp;#39;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>gdb.execute(&lt;span style="color:#0ff;font-weight:bold">&amp;#39;b *0x55555555567d&amp;#39;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>gdb.execute(&lt;span style="color:#0ff;font-weight:bold">&amp;#39;c&amp;#39;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>gdb.execute(&lt;span style="color:#0ff;font-weight:bold">&amp;#39;set $rax = 0&amp;#39;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>current = &lt;span style="color:#fff;font-weight:bold">int&lt;/span>.from_bytes(flag[&lt;span style="color:#ff0;font-weight:bold">0&lt;/span>:&lt;span style="color:#ff0;font-weight:bold">8&lt;/span>], &lt;span style="color:#0ff;font-weight:bold">&amp;#34;little&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>a = []
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#fff;font-weight:bold">for&lt;/span> i in &lt;span style="color:#fff;font-weight:bold">range&lt;/span>(&lt;span style="color:#ff0;font-weight:bold">4&lt;/span>):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> gdb.execute(&lt;span style="color:#0ff;font-weight:bold">&amp;#39;c&amp;#39;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> output1 = gdb.execute(&lt;span style="color:#0ff;font-weight:bold">&amp;#39;reg&amp;#39;&lt;/span>, to_string=&lt;span style="color:#fff;font-weight:bold">True&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#fff;font-weight:bold">print&lt;/span>(output1)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> m = re.search(&lt;span style="color:#0ff;font-weight:bold">r&lt;/span>&lt;span style="color:#0ff;font-weight:bold">&amp;#39;(0x.+)&amp;#39;&lt;/span>, output1)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> a.append(&lt;span style="color:#fff;font-weight:bold">int&lt;/span>(m.group(&lt;span style="color:#ff0;font-weight:bold">0&lt;/span>), &lt;span style="color:#ff0;font-weight:bold">16&lt;/span>))
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#fff;font-weight:bold">print&lt;/span>(&lt;span style="color:#0ff;font-weight:bold">f&lt;/span>&lt;span style="color:#0ff;font-weight:bold">&amp;#34;rax: &lt;/span>&lt;span style="color:#0ff;font-weight:bold">{&lt;/span>&lt;span style="color:#fff;font-weight:bold">hex&lt;/span>(a[i])&lt;span style="color:#0ff;font-weight:bold">}&lt;/span>&lt;span style="color:#0ff;font-weight:bold">&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> current = current ^ (a[i] &amp;lt;&amp;lt; (&lt;span style="color:#ff0;font-weight:bold">0x8&lt;/span> * i))
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#fff;font-weight:bold">print&lt;/span>(&lt;span style="color:#0ff;font-weight:bold">f&lt;/span>&lt;span style="color:#0ff;font-weight:bold">&amp;#34;check: &lt;/span>&lt;span style="color:#0ff;font-weight:bold">{&lt;/span>&lt;span style="color:#fff;font-weight:bold">hex&lt;/span>(current)&lt;span style="color:#0ff;font-weight:bold">}&lt;/span>&lt;span style="color:#0ff;font-weight:bold">&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#fff;font-weight:bold">assert&lt;/span> &lt;span style="color:#fff;font-weight:bold">len&lt;/span>(a) == &lt;span style="color:#ff0;font-weight:bold">4&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>e1 = &lt;span style="color:#ff0;font-weight:bold">0xbde671e813ba0ec4&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>e2 = &lt;span style="color:#ff0;font-weight:bold">0xfe313878bfd3832a&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>e3 = &lt;span style="color:#ff0;font-weight:bold">0xefe4966fa7747a84&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>e4 = &lt;span style="color:#ff0;font-weight:bold">0xac6a45cfcc93f053&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#fff;font-weight:bold">from&lt;/span> pwn &lt;span style="color:#fff;font-weight:bold">import&lt;/span> *
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>ans1 = e1 ^ a[&lt;span style="color:#ff0;font-weight:bold">0&lt;/span>]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>ans2 = e2 ^ a[&lt;span style="color:#ff0;font-weight:bold">1&lt;/span>]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>ans3 = e3 ^ a[&lt;span style="color:#ff0;font-weight:bold">2&lt;/span>]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>ans4 = e4 ^ a[&lt;span style="color:#ff0;font-weight:bold">3&lt;/span>]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>test = &lt;span style="color:#fff;font-weight:bold">int&lt;/span>.from_bytes(flag[&lt;span style="color:#ff0;font-weight:bold">0&lt;/span>:&lt;span style="color:#ff0;font-weight:bold">8&lt;/span>], &lt;span style="color:#0ff;font-weight:bold">&amp;#34;little&amp;#34;&lt;/span>) ^ a[&lt;span style="color:#ff0;font-weight:bold">0&lt;/span>]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#fff;font-weight:bold">print&lt;/span>(&lt;span style="color:#0ff;font-weight:bold">f&lt;/span>&lt;span style="color:#0ff;font-weight:bold">&amp;#34;possible: &lt;/span>&lt;span style="color:#0ff;font-weight:bold">{&lt;/span>ans1&lt;span style="color:#0ff;font-weight:bold">}&lt;/span>&lt;span style="color:#0ff;font-weight:bold">&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#fff;font-weight:bold">print&lt;/span>(&lt;span style="color:#0ff;font-weight:bold">f&lt;/span>&lt;span style="color:#0ff;font-weight:bold">&amp;#34;assume: &lt;/span>&lt;span style="color:#0ff;font-weight:bold">{&lt;/span>&lt;span style="color:#fff;font-weight:bold">hex&lt;/span>(test)&lt;span style="color:#0ff;font-weight:bold">}&lt;/span>&lt;span style="color:#0ff;font-weight:bold">&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>ans1 = ans1.to_bytes(&lt;span style="color:#ff0;font-weight:bold">8&lt;/span>, &lt;span style="color:#0ff;font-weight:bold">&amp;#34;little&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#fff;font-weight:bold">print&lt;/span>(&lt;span style="color:#0ff;font-weight:bold">f&lt;/span>&lt;span style="color:#0ff;font-weight:bold">&amp;#34;ans1: &lt;/span>&lt;span style="color:#0ff;font-weight:bold">{&lt;/span>ans1&lt;span style="color:#0ff;font-weight:bold">}&lt;/span>&lt;span style="color:#0ff;font-weight:bold">&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>ans2 = ans2.to_bytes(&lt;span style="color:#ff0;font-weight:bold">8&lt;/span>, &lt;span style="color:#0ff;font-weight:bold">&amp;#34;little&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#fff;font-weight:bold">print&lt;/span>(&lt;span style="color:#0ff;font-weight:bold">f&lt;/span>&lt;span style="color:#0ff;font-weight:bold">&amp;#34;ans2: &lt;/span>&lt;span style="color:#0ff;font-weight:bold">{&lt;/span>ans2&lt;span style="color:#0ff;font-weight:bold">}&lt;/span>&lt;span style="color:#0ff;font-weight:bold">&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>ans3 = ans3.to_bytes(&lt;span style="color:#ff0;font-weight:bold">8&lt;/span>, &lt;span style="color:#0ff;font-weight:bold">&amp;#34;little&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#fff;font-weight:bold">print&lt;/span>(&lt;span style="color:#0ff;font-weight:bold">f&lt;/span>&lt;span style="color:#0ff;font-weight:bold">&amp;#34;ans3: &lt;/span>&lt;span style="color:#0ff;font-weight:bold">{&lt;/span>ans3&lt;span style="color:#0ff;font-weight:bold">}&lt;/span>&lt;span style="color:#0ff;font-weight:bold">&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>ans4 = ans4.to_bytes(&lt;span style="color:#ff0;font-weight:bold">8&lt;/span>, &lt;span style="color:#0ff;font-weight:bold">&amp;#34;little&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#fff;font-weight:bold">print&lt;/span>(&lt;span style="color:#0ff;font-weight:bold">f&lt;/span>&lt;span style="color:#0ff;font-weight:bold">&amp;#34;ans4: &lt;/span>&lt;span style="color:#0ff;font-weight:bold">{&lt;/span>ans4&lt;span style="color:#0ff;font-weight:bold">}&lt;/span>&lt;span style="color:#0ff;font-weight:bold">&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>FLAG: &lt;code>SECCON{y3t_4n0th3r_m0vfu5c4t0r?}&lt;/code>&lt;/p></description></item><item><title>[CTF] Nullcon HackIM 2020 writeup</title><link>https://caphosra.net/posts/hackim2020-writeup/</link><pubDate>Sun, 09 Feb 2020 17:54:45 +0900</pubDate><guid>https://caphosra.net/posts/hackim2020-writeup/</guid><description>&lt;p>Nullcon HackIM 2020に出たのでそのwriteupでも書こうかなーと思った次第です。&lt;/p>
+&lt;p>結論から申し上げますと、解けた問題は&lt;strong>1&lt;/strong>問です&amp;hellip;(しかも、その問題はコピペするだけ)&lt;/p>
+&lt;p>ただ、そんなのではwriteupとして意味をなさないので、競技終了後も作業していました。&lt;br>
+結局ZeldaAdventureの最初の1問を解くことができたのでそれをここに載せます。&lt;/p>
+&lt;h3 id="問題の見た目">
+ 問題の見た目
+ &lt;a class="heading-link" href="#%e5%95%8f%e9%a1%8c%e3%81%ae%e8%a6%8b%e3%81%9f%e7%9b%ae">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="見出しへのリンク">&lt;/i>
+ &lt;span class="sr-only">見出しへのリンク&lt;/span>
+ &lt;/a>
+&lt;/h3>
+&lt;img src="https://caphosra.net/images/hackim2020-game.jpg" alt="Game scene" class="center" width="500" height="300" />
+&lt;p>Unity製のGameで、このNPC(白い敵)を1体以上倒すとFlagを手に入れられる、とあります。&lt;br>
+Playerは剣と体当たり(接触)することでNPCにダメージを与えられますが、敵のHPがとても高く、現実的な時間に倒せないようになっています。&lt;/p>
+&lt;h3 id="やったこと">
+ やったこと
+ &lt;a class="heading-link" href="#%e3%82%84%e3%81%a3%e3%81%9f%e3%81%93%e3%81%a8">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="見出しへのリンク">&lt;/i>
+ &lt;span class="sr-only">見出しへのリンク&lt;/span>
+ &lt;/a>
+&lt;/h3>
+&lt;p>UnityのWindowsでビルドした時のファイル構成は決まっています。&lt;br>
+特に、プログラマーが書いたコードは&lt;code>AssemblyCSharp.dll&lt;/code>というファイルにコンパイルされて存在しています。&lt;/p>
+&lt;p>ここで、dnSpyを使用して&lt;code>AssemblyCSharp.dll&lt;/code>の中のコードを読んでみます。&lt;br>
+コードの森を探索していると&amp;hellip;&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-C#" data-lang="C#">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#007f7f">// Token: 0x06000006 RID: 6&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#fff;font-weight:bold">private&lt;/span> &lt;span style="color:#fff;font-weight:bold">void&lt;/span> TakeDamage(&lt;span style="color:#fff;font-weight:bold">float&lt;/span> damage)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#fff;font-weight:bold">this&lt;/span>.health -= damage;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#fff;font-weight:bold">if&lt;/span> (&lt;span style="color:#fff;font-weight:bold">this&lt;/span>.health &amp;lt;= &lt;span style="color:#ff0;font-weight:bold">0f&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#fff;font-weight:bold">base&lt;/span>.StartCoroutine(&lt;span style="color:#fff;font-weight:bold">this&lt;/span>.ShowSome());
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#fff;font-weight:bold">base&lt;/span>.gameObject.SetActive(&lt;span style="color:#fff;font-weight:bold">false&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>ダメージを処理している部分を見つけました。&lt;br>
+HPが0になると&lt;code>ShowSome&lt;/code>というコールチンを回し始めるようです。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-C#" data-lang="C#">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#007f7f">// Token: 0x0600000A RID: 10&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#fff;font-weight:bold">private&lt;/span> IEnumerator ShowSome()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#fff;font-weight:bold">this&lt;/span>.textbox.SetActive(&lt;span style="color:#fff;font-weight:bold">true&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#fff;font-weight:bold">yield&lt;/span> &lt;span style="color:#fff;font-weight:bold">return&lt;/span> &lt;span style="color:#fff;font-weight:bold">new&lt;/span> WaitForSeconds(&lt;span style="color:#ff0;font-weight:bold">3f&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#fff;font-weight:bold">this&lt;/span>.textbox.SetActive(&lt;span style="color:#fff;font-weight:bold">false&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#fff;font-weight:bold">yield&lt;/span> &lt;span style="color:#fff;font-weight:bold">return&lt;/span> &lt;span style="color:#fff;font-weight:bold">null&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#fff;font-weight:bold">yield&lt;/span> &lt;span style="color:#fff;font-weight:bold">break&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>ShowSome&lt;/code>をみると&lt;code>this.textbox&lt;/code>を見せるようにしているみたいです。&lt;br>
+これはこのTextBoxがFlagを持っているのでしょう。&lt;br>
+dnSpyは実はDLLを編集する事が出来るので、この&lt;code>this.textbox&lt;/code>を最初から表示させるようにコードを書き換えれば、Flagゲットです。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="display:flex;">&lt;span>&lt;span style="font-weight:bold">Flag&lt;/span>: REVOLUTIONSTARTSWITHME
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>フォントがおしゃれすぎて読みにくかったです(褒めてます)&lt;/p></description></item></channel></rss>
