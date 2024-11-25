@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>CSharp Tips on caphosra note</title><link>https://caphosra.net/series/csharp-tips/</link><description>Recent content in CSharp Tips on caphosra note</description><generator>Hugo</generator><language>ja</language><lastBuildDate>Sun, 07 Jan 2024 13:18:38 +0900</lastBuildDate><atom:link href="https://caphosra.net/series/csharp-tips/index.xml" rel="self" type="application/rss+xml"/><item><title>[C# tips] #3 C#を対話形式で実行しよう</title><link>https://caphosra.net/posts/2020-05-24-csharptips3/</link><pubDate>Sun, 24 May 2020 06:36:13 +0900</pubDate><guid>https://caphosra.net/posts/2020-05-24-csharptips3/</guid><description>&lt;p>簡単な計算をする時にPythonを使っていませんか?&lt;br>
+対話形式で実行するのはとても便利ですよね。しかし、これと同じことはC#でも出来るのです。&lt;/p>
+&lt;h2 id="そもそも対話形式とは">
+ そもそも対話形式とは?
+ &lt;a class="heading-link" href="#%e3%81%9d%e3%82%82%e3%81%9d%e3%82%82%e5%af%be%e8%a9%b1%e5%bd%a2%e5%bc%8f%e3%81%a8%e3%81%af">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="見出しへのリンク">&lt;/i>
+ &lt;span class="sr-only">見出しへのリンク&lt;/span>
+ &lt;/a>
+&lt;/h2>
+&lt;p>ユーザーがプログラムを入力すると、それを評価してくれるのが対話形式です。&lt;br>
+Pythonを使ったことがあれば、以下のような感じです。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#b0c4de;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#54b1c7">&amp;gt;&amp;gt;&amp;gt;&lt;/span> &lt;span style="color:#aa89ea">a&lt;/span> &lt;span style="color:#54b1c7">=&lt;/span> &lt;span style="color:#d19a66">10&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#54b1c7">&amp;gt;&amp;gt;&amp;gt;&lt;/span> &lt;span style="color:#aa89ea">a&lt;/span> &lt;span style="color:#54b1c7">*&lt;/span> &lt;span style="color:#aa89ea">a&lt;/span> &lt;span style="color:#54b1c7">*&lt;/span> &lt;span style="color:#d19a66">3.14&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#d19a66">314.0&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>その場で計算してくれるので、書き捨てコードとしてとても有用です。(筆者は素数判定とかを無性にしたくなった時に使っています。)&lt;/p>
+&lt;h2 id="cって静的言語だから無理なんじゃないですか">
+ C#って静的言語だから無理なんじゃないですか?
+ &lt;a class="heading-link" href="#c%e3%81%a3%e3%81%a6%e9%9d%99%e7%9a%84%e8%a8%80%e8%aa%9e%e3%81%a0%e3%81%8b%e3%82%89%e7%84%a1%e7%90%86%e3%81%aa%e3%82%93%e3%81%98%e3%82%83%e3%81%aa%e3%81%84%e3%81%a7%e3%81%99%e3%81%8b">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="見出しへのリンク">&lt;/i>
+ &lt;span class="sr-only">見出しへのリンク&lt;/span>
+ &lt;/a>
+&lt;/h2>
+&lt;p>Pythonは動的実行をしている(実行時に型変換等を行っている)のに対して、&lt;br>
+C#はC++などと同じで静的言語であるので実行にはコンパイルが不可欠なはずです。&lt;br>
+コンパイルが必要ということは、時間がかかりすぎるので対話形式で実行するのには致命的&amp;hellip;&lt;/p>
+&lt;p>&lt;a href="https://ja.wikipedia.org/wiki/%E5%8B%95%E7%9A%84%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%9F%E3%83%B3%E3%82%B0%E8%A8%80%E8%AA%9E" class="external-link" target="_blank" rel="noopener">Wikipedia 動的プログラミング言語&lt;/a>&lt;/p>
+&lt;p>しかし、C#を動的に実行したいと考える人はいるようで&lt;/p>
+&lt;h2 id="cを対話形式で実行する拡張">
+ C#を対話形式で実行する拡張
+ &lt;a class="heading-link" href="#c%e3%82%92%e5%af%be%e8%a9%b1%e5%bd%a2%e5%bc%8f%e3%81%a7%e5%ae%9f%e8%a1%8c%e3%81%99%e3%82%8b%e6%8b%a1%e5%bc%b5">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="見出しへのリンク">&lt;/i>
+ &lt;span class="sr-only">見出しへのリンク&lt;/span>
+ &lt;/a>
+&lt;/h2>
+&lt;p>世の中にはC#を対話形式で実行したいと思う人が少なからずいるのでしょう。C#を標準で対話形式で実行することは出来ませんが、
+拡張を使用することでできるようになります。&lt;br>
+いくつか拡張が存在するのでご紹介します。&lt;/p>
+&lt;h3 id="c-repl">
+ C# REPL
+ &lt;a class="heading-link" href="#c-repl">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="見出しへのリンク">&lt;/i>
+ &lt;span class="sr-only">見出しへのリンク&lt;/span>
+ &lt;/a>
+&lt;/h3>
+&lt;p>有名な対話形式の拡張として、オープンソースのC#の先駆けとなったMonoプロジェクトが提供する
+&lt;a href="https://www.mono-project.com/docs/tools&amp;#43;libraries/tools/repl/" class="external-link" target="_blank" rel="noopener">C# REPL&lt;/a>があります。&lt;/p>
+&lt;p>使い方は簡単です。Monoをインストールして&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#b0c4de;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>$ csharp
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>と実行するだけです。&lt;br>
+以下の様にC#を対話形式で実行することが可能です。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#b0c4de;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>$ csharp
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>csharp&amp;gt; using System&lt;span style="color:#abb2bf">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>csharp&amp;gt; var &lt;span style="color:#dcaeea">a&lt;/span> &lt;span style="color:#54b1c7">=&lt;/span> 10&lt;span style="color:#abb2bf">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>csharp&amp;gt; a * a * Math.PI&lt;span style="color:#abb2bf">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>314.159265358979
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Mono C#を使用している方は今すぐ試すことができます。&lt;/p>
+&lt;h3 id="dotnet-script">
+ dotnet script
+ &lt;a class="heading-link" href="#dotnet-script">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="見出しへのリンク">&lt;/i>
+ &lt;span class="sr-only">見出しへのリンク&lt;/span>
+ &lt;/a>
+&lt;/h3>
+&lt;p>C# REPLはMonoプロジェクトのものでした。一方でこちらは .NET Coreで使うことができるものです。&lt;br>
+&lt;a href="https://github.com/filipw/dotnet-script" class="external-link" target="_blank" rel="noopener">dotnet script&lt;/a>は .NET CoreにGlobal toolとして以下のコマンドを使用してインストール出来ます。&lt;br>
+.NET Core 2.1以上が必要なことに注意してください。&lt;/p></description></item><item><title>[C# tips] #2 privateなメンバーにアクセスしよう</title><link>https://caphosra.net/posts/2020-04-10-csharptips2/</link><pubDate>Fri, 10 Apr 2020 18:08:04 +0900</pubDate><guid>https://caphosra.net/posts/2020-04-10-csharptips2/</guid><description>&lt;p>これで二回目です。前回はC#のLinqに関する軽い紹介を書きました。&lt;br>
+今日のテーマは&amp;quot;privateなメンバーにアクセスしよう&amp;quot;です。&lt;/p>
+&lt;h2 id="注意">
+ 注意
+ &lt;a class="heading-link" href="#%e6%b3%a8%e6%84%8f">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="見出しへのリンク">&lt;/i>
+ &lt;span class="sr-only">見出しへのリンク&lt;/span>
+ &lt;/a>
+&lt;/h2>
+&lt;p>この記事では&lt;code>System.Reflection&lt;/code>を使用してprivateなメンバーにアクセスする方法をお伝えします。ただ、自己責任でお願いします。(危ない操作ではありませんが、人のコードに対して行えば著作権侵害とかになりえるので。)&lt;/p>
+&lt;h2 id="突然ですが問題です">
+ 突然ですが問題です
+ &lt;a class="heading-link" href="#%e7%aa%81%e7%84%b6%e3%81%a7%e3%81%99%e3%81%8c%e5%95%8f%e9%a1%8c%e3%81%a7%e3%81%99">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="見出しへのリンク">&lt;/i>
+ &lt;span class="sr-only">見出しへのリンク&lt;/span>
+ &lt;/a>
+&lt;/h2>
+&lt;p>あなたは以下のようなクラスのインスタンスを与えられました。&lt;br>
+このクラスにはどうやらfloat型の変数があってそれは秘密の値で初期化されているようです。&lt;br>
+秘密にされると暴きたくなるのが人間の性、Capra君はどうしても秘密の値を知りたいです。&lt;br>
+果たしてどうすれば秘密の値を手に入れられるでしょうか?&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#b0c4de;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-C#" data-lang="C#">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#76a9f9">public&lt;/span> &lt;span style="color:#76a9f9">class&lt;/span> &lt;span style="color:#ca72ff">HasSecret&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#abb2bf">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#76a9f9">private&lt;/span> &lt;span style="color:#e5c07b">float&lt;/span> &lt;span style="color:#abb2bf">?????&lt;/span> &lt;span style="color:#abb2bf">=&lt;/span> &lt;span style="color:#abb2bf">?????;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#76a9f9">public&lt;/span> &lt;span style="color:#e5c07b">float&lt;/span> &lt;span style="color:#aa89ea">dummy1&lt;/span> &lt;span style="color:#abb2bf">=&lt;/span> &lt;span style="color:#d19a66">3.14f&lt;/span>&lt;span style="color:#abb2bf">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#76a9f9">private&lt;/span> &lt;span style="color:#e5c07b">int&lt;/span> &lt;span style="color:#aa89ea">dummy2&lt;/span> &lt;span style="color:#abb2bf">=&lt;/span> &lt;span style="color:#d19a66">314&lt;/span>&lt;span style="color:#abb2bf">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#abb2bf">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="ならディスアセンブルすれば">
+ ならディスアセンブルすれば&amp;hellip;?
+ &lt;a class="heading-link" href="#%e3%81%aa%e3%82%89%e3%83%87%e3%82%a3%e3%82%b9%e3%82%a2%e3%82%bb%e3%83%b3%e3%83%96%e3%83%ab%e3%81%99%e3%82%8c%e3%81%b0">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="見出しへのリンク">&lt;/i>
+ &lt;span class="sr-only">見出しへのリンク&lt;/span>
+ &lt;/a>
+&lt;/h2>
+&lt;p>確かに、dnSpyというC#で凄まじい威力を発揮するディスアセンブラを使えば瞬殺できます。ただ、やはりC#のコードで解決したいですよね。(というより、dnSpy使うのなら記事の意味がなくなってしまいそう&amp;hellip;)&lt;/p>
+&lt;p>&lt;a href="https://github.com/0xd4d/dnSpy" class="external-link" target="_blank" rel="noopener">GitHub - 0xd4d/dnSpy&lt;/a>&lt;/p>
+&lt;p>ということでC#のコードから&lt;code>HasSecret&lt;/code>内の変数にアクセスしてみましょう。&lt;/p>
+&lt;h2 id="まずは愚直にアクセス">
+ まずは愚直にアクセス
+ &lt;a class="heading-link" href="#%e3%81%be%e3%81%9a%e3%81%af%e6%84%9a%e7%9b%b4%e3%81%ab%e3%82%a2%e3%82%af%e3%82%bb%e3%82%b9">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="見出しへのリンク">&lt;/i>
+ &lt;span class="sr-only">見出しへのリンク&lt;/span>
+ &lt;/a>
+&lt;/h2>
+&lt;p>試しに、dummy2に何も考えずにアクセスしてみましょう。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#b0c4de;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-C#" data-lang="C#">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#e5c07b">var&lt;/span> &lt;span style="color:#aa89ea">secret&lt;/span> &lt;span style="color:#abb2bf">=&lt;/span> &lt;span style="color:#76a9f9">new&lt;/span> &lt;span style="color:#aa89ea">HasSecret&lt;/span>&lt;span style="color:#abb2bf">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#aa89ea">Console&lt;/span>&lt;span style="color:#abb2bf">.&lt;/span>&lt;span style="color:#aa89ea">WriteLine&lt;/span>&lt;span style="color:#abb2bf">(&lt;/span>&lt;span style="color:#aa89ea">secert&lt;/span>&lt;span style="color:#abb2bf">.&lt;/span>&lt;span style="color:#aa89ea">dummy2&lt;/span>&lt;span style="color:#abb2bf">);&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#b0c4de;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-fallback" data-lang="fallback">&lt;span style="display:flex;">&lt;span>error CS0122: &amp;#39;HasSecret.dummy2&amp;#39; is inaccessible due to its protection level
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>当然ながらエラーが発生しました。これでアクセス出来たらライブラリ開発者はたまったものじゃないですよね。せっかくの実装の隠蔽が意味をなさなくなりますから。&lt;/p>
+&lt;p>また、この方法だと、privateな変数にアクセスするどころか変数名さえわかりません。&lt;br>
+今回は変数名さえわからない状態なので、どうすればいいのでしょうか&amp;hellip;&lt;/p>
+&lt;h2 id="ここでsystemreflection">
+ ここでSystem.Reflection
+ &lt;a class="heading-link" href="#%e3%81%93%e3%81%93%e3%81%a7systemreflection">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="見出しへのリンク">&lt;/i>
+ &lt;span class="sr-only">見出しへのリンク&lt;/span>
+ &lt;/a>
+&lt;/h2>
+&lt;p>ここから、&lt;code>System.Reflection&lt;/code>を使っていきます。&lt;br>
+&lt;code>System.Reflection&lt;/code>は型の情報を使用して動的に物事を処理する方法を提供するクラスを揃えたバリューパックのような名前空間です。&lt;/p>
+&lt;p>それではそれらを使用して、privateな変数にアクセスしていきましょう。&lt;br>
+まず、&lt;code>GetType&lt;/code>関数を使って動的に型を取得します。静的に型を取得したい方は&lt;code>typeof&lt;/code>キーワードを利用するといいと思います。&lt;br>
+受け取った型の型は&lt;code>System.Type&lt;/code>となります。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#b0c4de;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-C#" data-lang="C#">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8a93a5;font-style:italic">// using System.Reflection;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#e5c07b">var&lt;/span> &lt;span style="color:#aa89ea">secret&lt;/span> &lt;span style="color:#abb2bf">=&lt;/span> &lt;span style="color:#76a9f9">new&lt;/span> &lt;span style="color:#aa89ea">HasSecret&lt;/span>&lt;span style="color:#abb2bf">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#e5c07b">var&lt;/span> &lt;span style="color:#aa89ea">type&lt;/span> &lt;span style="color:#abb2bf">=&lt;/span> &lt;span style="color:#aa89ea">secret&lt;/span>&lt;span style="color:#abb2bf">.&lt;/span>&lt;span style="color:#aa89ea">GetType&lt;/span>&lt;span style="color:#abb2bf">();&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>型を変数として受け取ったら、型が持っている&lt;code>GetFields&lt;/code>を呼び出します。名前から想像がつくように、型から、条件を満たす全てのFieldの情報を取得してくる関数です。因みに戻り値は&lt;code>System.Reflection.FieldInfo[]&lt;/code>です。&lt;/p></description></item><item><title>[C# tips] #1 C#でSQLみたいな構文?</title><link>https://caphosra.net/posts/2020-03-20-onepoint-csharp/</link><pubDate>Mon, 30 Mar 2020 16:26:36 +0900</pubDate><guid>https://caphosra.net/posts/2020-03-20-onepoint-csharp/</guid><description>&lt;blockquote>
+&lt;p>30億のデバイスで動くJavaの方がC#より強そう&lt;/p>
+&lt;/blockquote>
+&lt;blockquote>
+&lt;p>C#ってWin APIを呼ぶやつ&amp;hellip;?&lt;/p>
+&lt;/blockquote>
+&lt;p>このような事をいわれたことがあったので、対抗策として、C#の豆知識や小話(というほどでもない)を紹介するシリーズを始めようと思った次第です。&lt;br>
+これが、記念すべき第一回です。&lt;/p>
+&lt;h2 id="本編">
+ 本編
+ &lt;a class="heading-link" href="#%e6%9c%ac%e7%b7%a8">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="見出しへのリンク">&lt;/i>
+ &lt;span class="sr-only">見出しへのリンク&lt;/span>
+ &lt;/a>
+&lt;/h2>
+&lt;p>じつはC#にはSQL likeな構文が用意されています、というのが今回の話です。(あ、これ知ってるよという方、&lt;del>黙ってこのページを閉じてください&lt;/del>)&lt;/p>
+&lt;p>SQLと聞くと&amp;hellip;&lt;/p>
+&lt;ul>
+&lt;li>データベースの操作をするやつ&lt;/li>
+&lt;li>クエリを投げるやつ&lt;/li>
+&lt;li>&lt;del>実はSQLは言語そのもののことではない&lt;/del>&lt;/li>
+&lt;/ul>
+&lt;p>など色々思い浮かべると思います。&lt;/p>
+&lt;p>SQLはデータを処理するのに特化した言語です。SQLでゲームを作るなどという話は聞いたことがありません。&lt;/p>
+&lt;h2 id="sqlでデータを取り出してみる">
+ SQLでデータを取り出してみる
+ &lt;a class="heading-link" href="#sql%e3%81%a7%e3%83%87%e3%83%bc%e3%82%bf%e3%82%92%e5%8f%96%e3%82%8a%e5%87%ba%e3%81%97%e3%81%a6%e3%81%bf%e3%82%8b">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="見出しへのリンク">&lt;/i>
+ &lt;span class="sr-only">見出しへのリンク&lt;/span>
+ &lt;/a>
+&lt;/h2>
+&lt;p>例えば、SQLのデータベースに以下のようなテーブルがあったとします。&lt;/p>
+&lt;p>Table名 : TestResults&lt;/p>
+&lt;table>
+ &lt;thead>
+ &lt;tr>
+ &lt;th style="text-align: left">math&lt;/th>
+ &lt;th style="text-align: left">english&lt;/th>
+ &lt;th style="text-align: left">name&lt;/th>
+ &lt;/tr>
+ &lt;/thead>
+ &lt;tbody>
+ &lt;tr>
+ &lt;td style="text-align: left">50&lt;/td>
+ &lt;td style="text-align: left">100&lt;/td>
+ &lt;td style="text-align: left">A&lt;/td>
+ &lt;/tr>
+ &lt;tr>
+ &lt;td style="text-align: left">60&lt;/td>
+ &lt;td style="text-align: left">70&lt;/td>
+ &lt;td style="text-align: left">B&lt;/td>
+ &lt;/tr>
+ &lt;tr>
+ &lt;td style="text-align: left">80&lt;/td>
+ &lt;td style="text-align: left">80&lt;/td>
+ &lt;td style="text-align: left">C&lt;/td>
+ &lt;/tr>
+ &lt;tr>
+ &lt;td style="text-align: left">40&lt;/td>
+ &lt;td style="text-align: left">90&lt;/td>
+ &lt;td style="text-align: left">D&lt;/td>
+ &lt;/tr>
+ &lt;/tbody>
+&lt;/table>
+&lt;p>この時、&lt;code>math&lt;/code>が50以上なものを取り出し、&lt;code>english&lt;/code>の値の降順でソートしたいと思います。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#b0c4de;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-SQL" data-lang="SQL">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#76a9f9">SELECT&lt;/span> &lt;span style="color:#aa89ea">math&lt;/span>&lt;span style="color:#abb2bf">,&lt;/span> &lt;span style="color:#aa89ea">english&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#76a9f9">FROM&lt;/span> &lt;span style="color:#aa89ea">TestResults&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#76a9f9">WHERE&lt;/span> &lt;span style="color:#aa89ea">math&lt;/span> &lt;span style="color:#54b1c7">&amp;gt;=&lt;/span> &lt;span style="color:#d19a66">50&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#76a9f9">ORDER&lt;/span> &lt;span style="color:#76a9f9">BY&lt;/span> &lt;span style="color:#aa89ea">english&lt;/span> &lt;span style="color:#76a9f9">DESC&lt;/span>&lt;span style="color:#abb2bf">;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>これを行うSQLの文はこのようになります。ここでの解説は本題ではないので飛ばします。詳しくはググって下さい。&lt;/p>
+&lt;h2 id="cでこれができたなら">
+ C#でこれができたなら&amp;hellip;
+ &lt;a class="heading-link" href="#c%e3%81%a7%e3%81%93%e3%82%8c%e3%81%8c%e3%81%a7%e3%81%8d%e3%81%9f%e3%81%aa%e3%82%89">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="見出しへのリンク">&lt;/i>
+ &lt;span class="sr-only">見出しへのリンク&lt;/span>
+ &lt;/a>
+&lt;/h2>
+&lt;p>できます。&lt;code>System.Linq&lt;/code>を使用しましょう。&lt;/p>
+&lt;p>まず、Listを用意しましょう。Tupleを使用しました。古いバージョンのC#をお使いの方と匿名型大好きな方、すみません。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#b0c4de;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-C#" data-lang="C#">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8a93a5;font-style:italic">// using System;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8a93a5;font-style:italic">// using System.Collections.Generic;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#e5c07b">var&lt;/span> &lt;span style="color:#aa89ea">testResults&lt;/span> &lt;span style="color:#abb2bf">=&lt;/span> &lt;span style="color:#76a9f9">new&lt;/span> &lt;span style="color:#aa89ea">List&lt;/span>&lt;span style="color:#abb2bf">&amp;lt;(&lt;/span>&lt;span style="color:#e5c07b">int&lt;/span> &lt;span style="color:#aa89ea">math&lt;/span>&lt;span style="color:#abb2bf">,&lt;/span> &lt;span style="color:#e5c07b">int&lt;/span> &lt;span style="color:#aa89ea">english&lt;/span>&lt;span style="color:#abb2bf">,&lt;/span> &lt;span style="color:#e5c07b">string&lt;/span> &lt;span style="color:#aa89ea">name&lt;/span>&lt;span style="color:#abb2bf">)&amp;gt;()&lt;/span> &lt;span style="color:#abb2bf">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#abb2bf">(&lt;/span>&lt;span style="color:#d19a66">50&lt;/span>&lt;span style="color:#abb2bf">,&lt;/span> &lt;span style="color:#d19a66">100&lt;/span>&lt;span style="color:#abb2bf">,&lt;/span> &lt;span style="color:#98c379">&amp;#34;A&amp;#34;&lt;/span>&lt;span style="color:#abb2bf">),&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#abb2bf">(&lt;/span>&lt;span style="color:#d19a66">60&lt;/span>&lt;span style="color:#abb2bf">,&lt;/span> &lt;span style="color:#d19a66">70&lt;/span>&lt;span style="color:#abb2bf">,&lt;/span> &lt;span style="color:#98c379">&amp;#34;B&amp;#34;&lt;/span>&lt;span style="color:#abb2bf">),&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#abb2bf">(&lt;/span>&lt;span style="color:#d19a66">80&lt;/span>&lt;span style="color:#abb2bf">,&lt;/span> &lt;span style="color:#d19a66">80&lt;/span>&lt;span style="color:#abb2bf">,&lt;/span> &lt;span style="color:#98c379">&amp;#34;C&amp;#34;&lt;/span>&lt;span style="color:#abb2bf">),&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#abb2bf">(&lt;/span>&lt;span style="color:#d19a66">40&lt;/span>&lt;span style="color:#abb2bf">,&lt;/span> &lt;span style="color:#d19a66">90&lt;/span>&lt;span style="color:#abb2bf">,&lt;/span> &lt;span style="color:#98c379">&amp;#34;D&amp;#34;&lt;/span>&lt;span style="color:#abb2bf">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#abb2bf">};&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>そして、C#でSQL likeに同じ処理を行ってみましょう。&lt;/p></description></item></channel></rss>

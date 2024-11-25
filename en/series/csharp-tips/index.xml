@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>CSharp Tips on caphosra note</title><link>https://caphosra.net/en/series/csharp-tips/</link><description>Recent content in CSharp Tips on caphosra note</description><generator>Hugo</generator><language>en</language><lastBuildDate>Sun, 07 Jan 2024 13:46:52 +0900</lastBuildDate><atom:link href="https://caphosra.net/en/series/csharp-tips/index.xml" rel="self" type="application/rss+xml"/><item><title>[C# tips] #3 Run C# in interactive ways</title><link>https://caphosra.net/en/posts/2020-05-24-csharptips3/</link><pubDate>Sun, 24 May 2020 06:35:55 +0900</pubDate><guid>https://caphosra.net/en/posts/2020-05-24-csharptips3/</guid><description>&lt;p>You may use Python to do simple calculations. It&amp;rsquo;s very convenient to run interactively. But the same thing can be done with C#.&lt;br>
+I will introduce how to do that.&lt;/p>
+&lt;h2 id="what-is-an-interactive-form">
+ What is an interactive form?
+ &lt;a class="heading-link" href="#what-is-an-interactive-form">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="Link to heading">&lt;/i>
+ &lt;span class="sr-only">Link to heading&lt;/span>
+ &lt;/a>
+&lt;/h2>
+&lt;p>When a user inputs a statement or expression, the tool evaluates it.&lt;br>
+That is the simplest introduction I think.&lt;br>
+In Python, it looks like this:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#b0c4de;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#54b1c7">&amp;gt;&amp;gt;&amp;gt;&lt;/span> &lt;span style="color:#aa89ea">a&lt;/span> &lt;span style="color:#54b1c7">=&lt;/span> &lt;span style="color:#d19a66">10&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#54b1c7">&amp;gt;&amp;gt;&amp;gt;&lt;/span> &lt;span style="color:#aa89ea">a&lt;/span> &lt;span style="color:#54b1c7">*&lt;/span> &lt;span style="color:#aa89ea">a&lt;/span> &lt;span style="color:#54b1c7">*&lt;/span> &lt;span style="color:#d19a66">3.14&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#d19a66">314.0&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>It&amp;rsquo;s calculated on the spot, so it&amp;rsquo;s very useful as a way to execute a temporary code. (I use it when I want to judge whether the number is a prime number or not.)&lt;/p></description></item><item><title>[C# tips] #2 Access private members</title><link>https://caphosra.net/en/posts/2020-04-10-csharptips2/</link><pubDate>Sat, 02 May 2020 17:58:27 +0900</pubDate><guid>https://caphosra.net/en/posts/2020-04-10-csharptips2/</guid><description>&lt;p>I introduced C# Linq on the previous article &lt;a href="https://caphosra.net/en/posts/2020-03-20-onepoint-csharp/" >#1&lt;/a>.&lt;br>
+Today&amp;rsquo;s theme is &amp;ldquo;Access private members&amp;rdquo;.&lt;/p>
+&lt;h2 id="attention">
+ Attention
+ &lt;a class="heading-link" href="#attention">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="Link to heading">&lt;/i>
+ &lt;span class="sr-only">Link to heading&lt;/span>
+ &lt;/a>
+&lt;/h2>
+&lt;p>This article will show you how to use &lt;code>System.Reflection&lt;/code> to access private members. However, please do so at your own risk. (It&amp;rsquo;s not a dangerous operation, but if you do it for codes other people wrote, it can be a copyright infringement.)&lt;/p>
+&lt;h2 id="ill-show-give-a-quiz-to-you">
+ I&amp;rsquo;ll show give a quiz to you!
+ &lt;a class="heading-link" href="#ill-show-give-a-quiz-to-you">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="Link to heading">&lt;/i>
+ &lt;span class="sr-only">Link to heading&lt;/span>
+ &lt;/a>
+&lt;/h2>
+&lt;p>You have been given a variable of the following class.&lt;br>
+Apparently there is a float variable in this class, which is initialized with a secret value.&lt;br>
+Mr. Capra wants to know the secret value because he loves to reveal secrets.&lt;br>
+How can he get a secret value?&lt;/p></description></item><item><title>[C# tips] #1 Operate arrays like SQL</title><link>https://caphosra.net/en/posts/2020-03-20-onepoint-csharp/</link><pubDate>Mon, 30 Mar 2020 14:15:06 +0900</pubDate><guid>https://caphosra.net/en/posts/2020-03-20-onepoint-csharp/</guid><description>&lt;blockquote>
+&lt;p>C# is not useful than Java. Why don&amp;rsquo;t we use Java, which runs on 3 billion devices!&lt;/p>
+&lt;/blockquote>
+&lt;blockquote>
+&lt;p>Well&amp;hellip; C#? Is it used to call Win API&amp;hellip;?&lt;/p>
+&lt;/blockquote>
+&lt;p>These are what I have really been told about C#.&lt;br>
+When I listened them, I realized that many people haven&amp;rsquo;t ever touched C# yet. Indeed, there are situations where you should not use C#. I think, however, there should be much more people who use C# even considering it.&lt;br>
+I have thought deeply and dicided: &amp;ldquo;I&amp;rsquo;m going to show C# tips everyday on my blog!&amp;rdquo;&lt;/p></description></item></channel></rss>

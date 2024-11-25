@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>WSL2 on caphosra note</title><link>https://caphosra.net/tags/wsl2/</link><description>Recent content in WSL2 on caphosra note</description><generator>Hugo</generator><language>ja</language><lastBuildDate>Sun, 07 Jan 2024 13:58:55 +0900</lastBuildDate><atom:link href="https://caphosra.net/tags/wsl2/index.xml" rel="self" type="application/rss+xml"/><item><title>WSL2を使えるようにする</title><link>https://caphosra.net/posts/wsl2-setup/</link><pubDate>Sat, 14 Mar 2020 20:04:43 +0900</pubDate><guid>https://caphosra.net/posts/wsl2-setup/</guid><description>&lt;p>Windows上でLinuxをエミュレートしてくれるWSLが進化を遂げ&amp;hellip;&lt;br>
+遂にWSL2が使用出来るようになりました!やったね!&lt;/p>
+&lt;p>このニュースを聞いたら、当然プログラマー的には使ってみたくなりますよね。&lt;br>
+ということで、気楽にインストールしようとしたら&amp;hellip;&amp;ldquo;あれ?コマンドがないよ&amp;quot;みたいにWindowsに怒られてしまいました。&lt;/p>
+&lt;p>WSL2を使用出来るようにするのは一筋縄ではいかなかったので使用できるまでの道筋を紹介していきたいと思います。&lt;/p>
+&lt;p>WSL2はまだ安定していない様なので &lt;strong>あくまで自己責任で&lt;/strong> お願いします。&lt;/p>
+&lt;h2 id="まずwindowsをアップデート">
+ まず、Windowsをアップデート
+ &lt;a class="heading-link" href="#%e3%81%be%e3%81%9awindows%e3%82%92%e3%82%a2%e3%83%83%e3%83%97%e3%83%87%e3%83%bc%e3%83%88">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="見出しへのリンク">&lt;/i>
+ &lt;span class="sr-only">見出しへのリンク&lt;/span>
+ &lt;/a>
+&lt;/h2>
+&lt;p>実は、私はこれを忘れて数分溶かしました。&lt;/p>
+&lt;blockquote>
+&lt;p>WSL 2 is only available in Windows 10 builds 18917 or higher&lt;br>
+&lt;a href="https://docs.microsoft.com/en-us/windows/wsl/wsl2-install" class="external-link" target="_blank" rel="noopener">Microsoft - WSL2 Install&lt;/a>&lt;/p>
+&lt;/blockquote>
+&lt;p>なるほど、Windows 10のビルド番号18917番以降を持っている必要があるのですね。&lt;br>
+しかしながら、ただ、愚直にWindowsをアップデートしても、現段階では18917番以前のものになってしまいます。(バージョン確認にはwinverコマンドを)&lt;/p>
+&lt;p>それを解決するために、&lt;a href="https://insider.windows.com/en-us/" class="external-link" target="_blank" rel="noopener">Windows Insider&lt;/a>に加入しましょう。&lt;br>
+これは、Windowsの新しいバージョンをMicrosoftが配布し、問題を見つけたら報告するというシステムです。&lt;br>
+試験的な内容をいち早く使うことが出来ます。&lt;/p>
+&lt;p>Microsoftアカウントを持っていると登録は一瞬で終わります。なんと、&lt;strong>無料&lt;/strong>　です。&lt;/p>
+&lt;p>続いて設定を開きます。そして&amp;quot;更新とセキュリティ&amp;quot;をクリック。&lt;/p>
+&lt;img src="https://caphosra.net/images/wsl2-setup/settings.jpg" alt="Windows settings" class="center" width="900" height="300" />
+&lt;img src="https://caphosra.net/images/wsl2-setup/windows-insider-program.jpg" alt="Windows Insider Program" class="center" width="300" height="600" />
+&lt;p>&amp;ldquo;Windows Insider Program&amp;quot;をクリックして、ログインしてください。&lt;br>
+Insiderの設定は&amp;quot;スロー&amp;quot;で問題ないと思います。&lt;/p>
+&lt;p>続いて、&amp;ldquo;Windows Update&amp;quot;に移って、&amp;ldquo;更新プログラムのチェック&amp;quot;をクリック。
+先程までなかった、より新しいWindows 10のバージョンへの更新ができるようになります!
+これで、先程のWindowsバージョン問題は解決です。あとは、ひたすらWindows Updateを見る会です。&lt;/p>
+&lt;h2 id="wslをインストールしていく">
+ WSLをインストールしていく
+ &lt;a class="heading-link" href="#wsl%e3%82%92%e3%82%a4%e3%83%b3%e3%82%b9%e3%83%88%e3%83%bc%e3%83%ab%e3%81%97%e3%81%a6%e3%81%84%e3%81%8f">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="見出しへのリンク">&lt;/i>
+ &lt;span class="sr-only">見出しへのリンク&lt;/span>
+ &lt;/a>
+&lt;/h2>
+&lt;p>WSLのインストール方法は通常の方法と同じなので割愛します。&lt;br>
+以下のサイトがわかりやすかったです。(&lt;del>丸投げ&lt;/del>)&lt;/p>
+&lt;p>&lt;a href="https://qiita.com/Aruneko/items/c79810b0b015bebf30bb" class="external-link" target="_blank" rel="noopener">Qitta - Windows Subsystem for Linuxをインストールしてみよう！ @Aruneko&lt;/a>&lt;/p>
+&lt;p>本当にWSLのインストールと同じです。&lt;br>
+WSLを既にインストールしているよ、という方はここをスルーしても大丈夫です。&lt;/p></description></item></channel></rss>
