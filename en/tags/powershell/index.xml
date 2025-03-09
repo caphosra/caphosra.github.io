@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Powershell on caphosra note</title><link>https://caphosra.net/en/tags/powershell/</link><description>Recent content in Powershell on caphosra note</description><generator>Hugo</generator><language>en</language><lastBuildDate>Sun, 07 Jan 2024 13:18:38 +0900</lastBuildDate><atom:link href="https://caphosra.net/en/tags/powershell/index.xml" rel="self" type="application/rss+xml"/><item><title>How to use 'sudo' in Powershell</title><link>https://caphosra.net/en/posts/powershell-sudo/</link><pubDate>Thu, 12 Dec 2019 10:47:01 +0900</pubDate><guid>https://caphosra.net/en/posts/powershell-sudo/</guid><description>&lt;p>In this article, I will explain how to implement a command like &lt;code>sudo&lt;/code> on Powershell.&lt;/p>
+&lt;p>On Powershell, there are no command with which you can run other commands as a administrator. And if you want to do something as a administrator, you have to open a administrator&amp;rsquo;s Powershell by GUI.&lt;br>
+It&amp;rsquo;s troublesome! I wish we always want to do everything on CUI!&lt;/p>
+&lt;p>I hope this article helps many people.&lt;/p>
+&lt;h2 id="plan">
+ Plan
+ &lt;a class="heading-link" href="#plan">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="Link to heading">&lt;/i>
+ &lt;span class="sr-only">Link to heading&lt;/span>
+ &lt;/a>
+&lt;/h2>
+&lt;p>Implement a function that is similar to &lt;code>sudo&lt;/code> and set it as a Powershell alias.&lt;/p></description></item></channel></rss>
