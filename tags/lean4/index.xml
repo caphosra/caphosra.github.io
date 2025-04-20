@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Lean4 on caphosra note</title><link>https://caphosra.net/tags/lean4/</link><description>Recent content in Lean4 on caphosra note</description><generator>Hugo</generator><language>ja</language><lastBuildDate>Fri, 06 Dec 2024 18:11:55 +0900</lastBuildDate><atom:link href="https://caphosra.net/tags/lean4/index.xml" rel="self" type="application/rss+xml"/><item><title>Lean4と戯れるのに役に立ったもの</title><link>https://caphosra.net/posts/2024-12-06-lean4-tips/</link><pubDate>Fri, 06 Dec 2024 07:51:57 +0900</pubDate><guid>https://caphosra.net/posts/2024-12-06-lean4-tips/</guid><description>&lt;p>この記事は, &lt;a href="https://adventar.org/calendars/10445" class="external-link" target="_blank" rel="noopener">理情 Advent Calendar 2024&lt;/a>の12/6の記事です. この文章を読むのに飽きたら是非他の人の書いた記事を読んでみてください.&lt;/p>
+&lt;h2 id="はじめに">
+ はじめに
+ &lt;a class="heading-link" href="#%e3%81%af%e3%81%98%e3%82%81%e3%81%ab">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="見出しへのリンク">&lt;/i>
+ &lt;span class="sr-only">見出しへのリンク&lt;/span>
+ &lt;/a>
+&lt;/h2>
+&lt;p>今年4月ごろに, 元から興味を持っていたプログラミング言語もとい定理証明支援系のLean4に満を持して入門しました.&lt;/p>
+&lt;p>しかしながら, 単に情報がないからなのか自分の検索能力が低いからなのか, 普通に手元では証明できているのにLean4にどのように書き下せばいいのかわからない場面が何度もあったので, この記事では初心者なりにかなり便利でもっと早く知っておきたかったいくつかのトピックを, 少しでも証明を楽しむためのヒントとして記したいと思います. かなり雑多だと思うのですが, どうかお付き合いください.&lt;/p>
+&lt;p>注意点として, Lean4の公式の &lt;a href="https://leanprover.github.io/theorem_proving_in_lean4/" class="external-link" target="_blank" rel="noopener">Theorem Proving in Lean 4&lt;/a> に載っている内容はこの記事では基本省略してあるので, 基本的な使い方を習得するのにはこの記事は向かないと思います.&lt;/p>
+&lt;p>また, 直観論理の世界から抜け出したくない方には申し訳ないのですがこの記事では古典論理を前提としており, 断りなく&lt;code>open Classical&lt;/code>されていることを仮定しています.&lt;/p>
+&lt;h2 id="1-lean-4-vscode-extension">
+ 1. Lean 4 VSCode Extension
+ &lt;a class="heading-link" href="#1-lean-4-vscode-extension">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="見出しへのリンク">&lt;/i>
+ &lt;span class="sr-only">見出しへのリンク&lt;/span>
+ &lt;/a>
+&lt;/h2>
+&lt;p>かなり当たり前かもしれませんが, この拡張を入れるとLean4のsyntax highlightingや入力予測がされるようになります. それだけでなく, 現在の証明の流れがとても掴みやすくなるInfoViewが見れるようになります.&lt;/p>
+&lt;p>&lt;img src="https://caphosra.net/images/2024-12-06/lean4_screenshot1.jpg" alt="Lean4 info view screenshot">&lt;/p>
+&lt;p>左に書かれているのがLean4の証明で, 右がその様子をわかりやすく表示してくれるInfoViewです. 写真では119行目にカーソルが合っているので119行目における証明の進行状況が表示されています.&lt;/p>
+&lt;p>&lt;img src="https://caphosra.net/images/2024-12-06/lean4_screenshot2.jpg" alt="Lean4 info view screenshot">&lt;/p>
+&lt;p>このviewの見方をざっと解説します.&lt;/p>
+&lt;p>まず, 画像でオレンジ色で表示されているのが, すでに導入された命題のリストです. 仮定として証明に使って良い名前付けされた命題が並んでいます. Curry-Howard同型対応と呼ばれる, ざっくりといえば関数と型はそれぞれ証明と命題に対応するという対応関係から, 現在のスコープにある変数とその型であるとみることもできます.&lt;/p>
+&lt;p>次に画像で一番下に表示されているのが, この証明のゴール, つまり示すべきものです. このゴールは, 必ずしもある定理の証明をする間ずっと同じというわけでもなく, 場合分けの途中や補題の証明中などに変わることもあるので, 今自分が何を示そうとしているのか意識するためにも常に把握しておきましょう.&lt;/p></description></item></channel></rss>

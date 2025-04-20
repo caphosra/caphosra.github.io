@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>WPF on caphosra note</title><link>https://caphosra.net/en/tags/wpf/</link><description>Recent content in WPF on caphosra note</description><generator>Hugo</generator><language>en</language><lastBuildDate>Sun, 07 Jan 2024 13:46:52 +0900</lastBuildDate><atom:link href="https://caphosra.net/en/tags/wpf/index.xml" rel="self" type="application/rss+xml"/><item><title>Create a button whose background is filled by images on Avalonia UI</title><link>https://caphosra.net/en/posts/2020-03-29-avalonia-image-button/</link><pubDate>Tue, 31 Mar 2020 11:34:47 +0900</pubDate><guid>https://caphosra.net/en/posts/2020-03-29-avalonia-image-button/</guid><description>&lt;p>On this article, I will describe how to create a button whose background is filled by images on a crossplatform GUI library, Avalonia UI.&lt;/p>
+&lt;img src="https://caphosra.net/images/2020-03-29/ButtonClick2.gif" alt="On button clicked (Successed)" class="center" width="438" height="211" />
+&lt;p>I had a harder time to make it than I had expected. I beleive that this saves your time.&lt;/p>
+&lt;h2 id="precondition">
+ Precondition
+ &lt;a class="heading-link" href="#precondition">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="Link to heading">&lt;/i>
+ &lt;span class="sr-only">Link to heading&lt;/span>
+ &lt;/a>
+&lt;/h2>
+&lt;ul>
+&lt;li>You have an Avalonia project already.&lt;/li>
+&lt;li>You have finished to choose images to use already.&lt;/li>
+&lt;/ul>
+&lt;p>I recommend you to prepare three images, normal, hovering, clicking.&lt;br>
+Indeed, you can do it with just one image.&lt;/p></description></item></channel></rss>
