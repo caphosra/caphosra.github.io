@@ -1,0 +1,112 @@
+<!--
+    引用元: https://utokyo-iscg-2025-assignment-a1-ik.glitch.me/
+    一部改変
+-->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title id="title">
+            [utokyo-iscg] Basic Assignment A1 (Inverse Kinematics)
+        </title>
+        <script src="https://rawcdn.githack.com/toji/gl-matrix/v3.3.0/dist/gl-matrix-min.js"></script>
+        <script src="https://bbcdn.githack.com/kenshi84/legacygl.js/raw/master/gl-matrix-util.js"></script>
+        <script src="https://bbcdn.githack.com/kenshi84/legacygl.js/raw/master/legacygl.js"></script>
+        <script src="https://bbcdn.githack.com/kenshi84/legacygl.js/raw/master/drawutil.js"></script>
+        <script src="https://bbcdn.githack.com/kenshi84/legacygl.js/raw/master/camera.js"></script>
+        <script src="https://bbcdn.githack.com/kenshi84/legacygl.js/raw/master/util.js"></script>
+        <script src="https://bbcdn.githack.com/kenshi84/legacygl.js/raw/master/glu.js"></script>
+        <script src="dist/bundle.js"></script>
+    </head>
+
+    <body>
+        <h2>
+            <script>
+                document.write(document.getElementById("title").innerHTML);
+            </script>
+        </h2>
+        <table>
+            <tr>
+                <td>
+                    <canvas
+                        id="canvas"
+                        width="800"
+                        height="600"
+                        style="border: 1px solid #000000"
+                    ></canvas>
+                </td>
+                <td>
+                    <ul>
+                        <li>
+                            選択中のlinkage(赤で表示):<input
+                                type="number"
+                                id="input_selected"
+                                step="1"
+                                min="0"
+                                value="0"
+                            />
+                        </li>
+                        <li>
+                            選択中のlinkageの角度:
+                            <input
+                                type="number"
+                                id="input_angle"
+                                step="5"
+                                value="0"
+                            />
+                        </li>
+                        <li>
+                            モード：
+                            <ul>
+                                <li>
+                                    <input
+                                        type="radio"
+                                        name="input_mode"
+                                        id="fk_mode"
+                                        value="fk_mode"
+                                        checked
+                                    /><label for="fk_mode"
+                                        >Forward Kinematics (FK)</label
+                                    >
+                                </li>
+                                <li>
+                                    <input
+                                        type="radio"
+                                        name="input_mode"
+                                        id="ik_mode"
+                                        value="ik_mode"
+                                    /><label for="ik_mode"
+                                        >Inverse Kinematics (IK)</label
+                                    >
+                                </li>
+                            </ul>
+                        </li>
+                        <li>使い方：</li>
+                        <ul>
+                            <li>
+                                FKモード時: linkageを選択して角度を入力する。
+                            </li>
+                            <li>
+                                IKモード時: 領域内でマウスドラッグすることでIK
+                                end effectorのtarget positionを指定する。
+                            </li>
+                        </ul>
+                    </ul>
+                </td>
+            </tr>
+        </table>
+
+        <h3>実装上の工夫・考察など(optional)</h3>
+        <ul>
+            <li>IKモード中に値を直接編集できないようにした。</li>
+            <li>
+                同じtarget
+                pointであっても結果はこれまでの軌跡に強く依存し相異なることを確認した。
+            </li>
+            <li>
+                反復回数は固定で10回とした。反復を行わないと、マウスの移動に対して線が激しく振動する現象を確認できた。
+            </li>
+        </ul>
+    </body>
+</html>
