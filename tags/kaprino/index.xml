@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Kaprino on caphosra note</title><link>https://caphosra.net/tags/kaprino/</link><description>Recent content in Kaprino on caphosra note</description><generator>Hugo</generator><language>ja</language><lastBuildDate>Sun, 07 Jan 2024 13:18:38 +0900</lastBuildDate><atom:link href="https://caphosra.net/tags/kaprino/index.xml" rel="self" type="application/rss+xml"/><item><title>自作言語を作るまでに使えるツールたち</title><link>https://caphosra.net/posts/2020-10-03-original-language/</link><pubDate>Sat, 03 Oct 2020 21:36:42 +0900</pubDate><guid>https://caphosra.net/posts/2020-10-03-original-language/</guid><description>&lt;p>遂に、自作言語kaprinoが無事完成したのでその記念に、自作言語を実装するにあたって
+使った物をこの記事で紹介したいと思います。実際に自作言語を作ろうと思っても
+何から手を付けていいのか分からなくなってしまうことがあることは想像に難くないので、
+その様な人への羅針盤のような記事になることを期待しています。&lt;br>
+ただ、それぞれの使い方まで言及すると記事の量がどえらい事になるので、使い方はいずれ書こうと思います。&lt;/p>
+&lt;p>これから自作言語作る予定がある方は必見です!&lt;br>
+もう既に自作言語を実装した経験がある方は&lt;del>お手柔らかにお願いします。&lt;/del>&lt;/p>
+&lt;p>自作言語kaprinoのソースコードを管理しているrepositoryへのリンクと自作のオンラインコンパイラ(この話はまた別の記事で)です。もし良かったら見てみてください。&lt;br>
+&lt;a href="https://github.com/kaprino-lang/kaprino" class="external-link" target="_blank" rel="noopener">Github kaprino-lang&lt;/a>&lt;br>
+&lt;a href="https://kaprino-lang.github.io/online/" class="external-link" target="_blank" rel="noopener">Kaprino Online Compiler&lt;/a>&lt;/p>
+&lt;h2 id="まず自作言語を何故作ろうと思ったのか">
+ まず自作言語を何故作ろうと思ったのか
+ &lt;a class="heading-link" href="#%e3%81%be%e3%81%9a%e8%87%aa%e4%bd%9c%e8%a8%80%e8%aa%9e%e3%82%92%e4%bd%95%e6%95%85%e4%bd%9c%e3%82%8d%e3%81%86%e3%81%a8%e6%80%9d%e3%81%a3%e3%81%9f%e3%81%ae%e3%81%8b">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="見出しへのリンク">&lt;/i>
+ &lt;span class="sr-only">見出しへのリンク&lt;/span>
+ &lt;/a>
+&lt;/h2>
+&lt;p>&lt;del>なぜでしょうね。&lt;/del>&lt;br>
+自作言語を作る人がよく言うのは、使っている既存の言語に不満があって自分の好みにあった言語を作ってみたい、という感じでしょうが、
+私が自作言語を作ろうと思った理由は、本当になんとなくです。自作言語という言葉の響きによるものだと言えるかもしれませんし、
+単純に自分は気付いていないだけで言語に不満があったのかもしれません。&lt;br>
+これは本題ではないのでこれくらいにしておきます。&lt;/p>
+&lt;h2 id="言語を動かすまでを大雑把に把握">
+ 言語を動かすまでを大雑把に把握
+ &lt;a class="heading-link" href="#%e8%a8%80%e8%aa%9e%e3%82%92%e5%8b%95%e3%81%8b%e3%81%99%e3%81%be%e3%81%a7%e3%82%92%e5%a4%a7%e9%9b%91%e6%8a%8a%e3%81%ab%e6%8a%8a%e6%8f%a1">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="見出しへのリンク">&lt;/i>
+ &lt;span class="sr-only">見出しへのリンク&lt;/span>
+ &lt;/a>
+&lt;/h2>
+&lt;p>さて本題に入りましょう。&lt;br>
+これから言語を作るまでに使ったものを紹介してゆく訳ですが、そもそも私の自作言語kaprinoが
+どのように動いているか説明したいと思います。&lt;/p>
+&lt;p>まず、kaprinoは静的な型付けの言語で、実行前にコンパイルを必要とします。&lt;br>
+&lt;strong>コンパイル&lt;/strong> とはソースコードを機械語に変換することです。このコンパイルは通常、以下の様な作業を行います。&lt;/p>
+&lt;ol>
+&lt;li>&lt;strong>Lexer&lt;/strong> (字句解析器) と呼ばれるものでソースコードを &lt;strong>Token&lt;/strong> (小さい文字列)に分解&lt;/li>
+&lt;li>&lt;strong>Parser&lt;/strong> (構文解析器) と呼ばれるものでTokenを &lt;strong>AST&lt;/strong> (抽象構文木)に変換&lt;/li>
+&lt;li>ASTを低級言語(機械語やアセンブリ言語)に変換&lt;/li>
+&lt;/ol>
+&lt;p>ということはこの三つを行うプログラムを書くことが出来れば自作言語のコンパイラを手にする事ができます!&lt;/p>
+&lt;p>しかし、愚直にこれらを一から実装すると途轍もない時間がかかります。そこでライブラリを使って実装していくことになります。&lt;/p>
+&lt;p>&lt;strong>以下、C++で書くことを前提として話を進めます&lt;/strong>&lt;br>
+C#とかJavaとかRustとかでもいいんですがそれらは&lt;del>記事の対象外ということで&lt;/del>&lt;/p>
+&lt;h2 id="1-lexerを実装する">
+ 1. Lexerを実装する
+ &lt;a class="heading-link" href="#1-lexer%e3%82%92%e5%ae%9f%e8%a3%85%e3%81%99%e3%82%8b">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="見出しへのリンク">&lt;/i>
+ &lt;span class="sr-only">見出しへのリンク&lt;/span>
+ &lt;/a>
+&lt;/h2>
+&lt;p>Lexerはこれから行う3つの事の中では最も簡単に実装ができます。自力実装もそこまで難しくないです。&lt;br>
+しかし、今回のテーマはツール紹介ということなので自力でやりたいよ、という方は無視します。&lt;br>
+&lt;del>頑張って下さい。応援しています。&lt;/del>&lt;/p>
+&lt;p>LexerをC++で実装する時に使われる有名なツール(ライブラリ)として挙げられるのはこの三つです。&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>lex&lt;/strong> (伝統的)&lt;/li>
+&lt;li>&lt;strong>flex&lt;/strong> (再構築されたlex)&lt;/li>
+&lt;li>&lt;strong>Antlr4&lt;/strong> (新勢力)&lt;/li>
+&lt;/ul>
+&lt;p>flexはlexと構文がほとんど同じなので、lexを使うくらいならより新しいflexを使ったほうがいいと思います。&lt;br>
+flexとAntlr4について言えば、どちらを選んでも困ることは起こらないので、それぞれ検索してみて、サンプルコードにシンパシーを感じた方を使えばいいと思います。&lt;/p>
+&lt;p>個人的にはAntlr4で書いた方が読みやすいと思ったので、kaprinoにもAntlr4を使っています。&lt;/p>
+&lt;h2 id="2-parserを実装する">
+ 2. Parserを実装する
+ &lt;a class="heading-link" href="#2-parser%e3%82%92%e5%ae%9f%e8%a3%85%e3%81%99%e3%82%8b">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="見出しへのリンク">&lt;/i>
+ &lt;span class="sr-only">見出しへのリンク&lt;/span>
+ &lt;/a>
+&lt;/h2>
+&lt;p>ParserをC++で実装する時に使われる有名なツール(ライブラリ)として挙げられるのはこの三つです。&lt;/p></description></item></channel></rss>
