@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" viewBox="10 0 60 60">
+    <g>
+        <rect x="10" y="12" rx="2" ry="2" width="20" height="10" style="fill: rgb(204, 250, 158);"></rect>
+    </g>
+    <g>
+        <rect x="10" y="24" rx="2" ry="2" width="40" height="10" style="fill: rgb(158, 250, 250);"></rect>
+    </g>
+    <g>
+        <rect x="10" y="36" rx="2" ry="2" width="60" height="10" style="fill: rgb(204, 158, 250);"></rect>
+    </g>
+</svg>
