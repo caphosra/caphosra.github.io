@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>LLVM on caphosra note</title><link>https://caphosra.net/en/tags/llvm/</link><description>Recent content in LLVM on caphosra note</description><generator>Hugo</generator><language>en</language><lastBuildDate>Sun, 07 Jan 2024 13:58:55 +0900</lastBuildDate><atom:link href="https://caphosra.net/en/tags/llvm/index.xml" rel="self" type="application/rss+xml"/><item><title>[LLVM] How to show a float value by using printf</title><link>https://caphosra.net/en/posts/2020-04-09-llvm-printf-float/</link><pubDate>Sat, 02 May 2020 11:39:02 +0900</pubDate><guid>https://caphosra.net/en/posts/2020-04-09-llvm-printf-float/</guid><description>&lt;p>I will introduce how to generate LLVM IR that displays the float type variable by using LLVM&amp;rsquo;s C++ API.&lt;/p>
+&lt;h2 id="my-environment">
+ My environment
+ &lt;a class="heading-link" href="#my-environment">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="Link to heading">&lt;/i>
+ &lt;span class="sr-only">Link to heading&lt;/span>
+ &lt;/a>
+&lt;/h2>
+&lt;ul>
+&lt;li>LLVM: LLVM 9.0.1&lt;/li>
+&lt;li>Compiler: cl.exe (included in Visual Studio 2019)&lt;/li>
+&lt;/ul>
+&lt;h2 id="what-we-want">
+ What we want
+ &lt;a class="heading-link" href="#what-we-want">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="Link to heading">&lt;/i>
+ &lt;span class="sr-only">Link to heading&lt;/span>
+ &lt;/a>
+&lt;/h2>
+&lt;p>The goal of this time is to output an LLVM IR that behaves the same as the following C program.
+Add two float values together and do printf.&lt;/p></description></item><item><title>[LLVM] How to solve CreateGlobalStringPtr crash</title><link>https://caphosra.net/en/posts/2020-05-02-llvm-string-ptr/</link><pubDate>Sat, 02 May 2020 07:51:32 +0900</pubDate><guid>https://caphosra.net/en/posts/2020-05-02-llvm-string-ptr/</guid><description>&lt;p>I encountered the situaton that CreateGlobalStringPtr failed in the block of if statement, so I will introduce the way to solve it. (Also I found it had been my fault, but you can be.)&lt;/p>
+&lt;h2 id="the-error-that-occurred">
+ The error that occurred
+ &lt;a class="heading-link" href="#the-error-that-occurred">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="Link to heading">&lt;/i>
+ &lt;span class="sr-only">Link to heading&lt;/span>
+ &lt;/a>
+&lt;/h2>
+&lt;p>First, let&amp;rsquo;s implement if statements frankly.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#b0c4de;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-C++" data-lang="C++">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#76a9f9">auto&lt;/span> &lt;span style="color:#aa89ea">ifblock&lt;/span> &lt;span style="color:#54b1c7">=&lt;/span> &lt;span style="color:#aa89ea">llvm&lt;/span>&lt;span style="color:#54b1c7">::&lt;/span>&lt;span style="color:#aa89ea">BasicBlock&lt;/span>&lt;span style="color:#54b1c7">::&lt;/span>&lt;span style="color:#aa89ea">Create&lt;/span>&lt;span style="color:#abb2bf">(&lt;/span>&lt;span style="color:#aa89ea">module&lt;/span>&lt;span style="color:#54b1c7">-&amp;gt;&lt;/span>&lt;span style="color:#aa89ea">getContext&lt;/span>&lt;span style="color:#abb2bf">(),&lt;/span> &lt;span style="color:#98c379">&amp;#34;then&amp;#34;&lt;/span>&lt;span style="color:#abb2bf">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#76a9f9">auto&lt;/span> &lt;span style="color:#aa89ea">mergeblock&lt;/span> &lt;span style="color:#54b1c7">=&lt;/span> &lt;span style="color:#aa89ea">llvm&lt;/span>&lt;span style="color:#54b1c7">::&lt;/span>&lt;span style="color:#aa89ea">BasicBlock&lt;/span>&lt;span style="color:#54b1c7">::&lt;/span>&lt;span style="color:#aa89ea">Create&lt;/span>&lt;span style="color:#abb2bf">(&lt;/span>&lt;span style="color:#aa89ea">module&lt;/span>&lt;span style="color:#54b1c7">-&amp;gt;&lt;/span>&lt;span style="color:#aa89ea">getContext&lt;/span>&lt;span style="color:#abb2bf">(),&lt;/span> &lt;span style="color:#98c379">&amp;#34;merged&amp;#34;&lt;/span>&lt;span style="color:#abb2bf">);&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>This is the part where we declare two Basic Blocks, one will be the inside of the if statement and the other will be the bottom of the end of the if statement.&lt;/p></description></item><item><title>Install lli, a tool of LLVM, to Windows</title><link>https://caphosra.net/en/posts/llvm-lli-install/</link><pubDate>Sun, 08 Mar 2020 09:12:43 +0900</pubDate><guid>https://caphosra.net/en/posts/llvm-lli-install/</guid><description>&lt;img src="https://llvm.org/img/LLVM-Logo-Derivative-1.png" alt="LLVM logo" class="center" width="256" height="256" />
+&lt;p>Good morning! I&amp;rsquo;m capra314cabra, who am under making new language.&lt;br>
+On this article, I will tell you how to get tools of LLVM. You might think it should be easy but I felt not.
+I hope you read this and save huge amount of time from reading heap of documents.&lt;/p>
+&lt;h2 id="tldr">
+ TL;DR
+ &lt;a class="heading-link" href="#tldr">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="Link to heading">&lt;/i>
+ &lt;span class="sr-only">Link to heading&lt;/span>
+ &lt;/a>
+&lt;/h2>
+&lt;p>At last, I downloaded and built all the code of LLVM on my PC.
+And I got tools of LLVM, including &lt;code>lli&lt;/code>.&lt;/p></description></item></channel></rss>

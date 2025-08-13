@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>WPF on caphosra note</title><link>https://caphosra.net/tags/wpf/</link><description>Recent content in WPF on caphosra note</description><generator>Hugo</generator><language>ja</language><lastBuildDate>Sun, 07 Jan 2024 13:46:52 +0900</lastBuildDate><atom:link href="https://caphosra.net/tags/wpf/index.xml" rel="self" type="application/rss+xml"/><item><title>Avalonia UIで画像を使ったボタンを作成する方法</title><link>https://caphosra.net/posts/2020-03-29-avalonia-image-button/</link><pubDate>Sun, 29 Mar 2020 10:17:52 +0900</pubDate><guid>https://caphosra.net/posts/2020-03-29-avalonia-image-button/</guid><description>&lt;p>今回は、知らないと難しい、Avalonia UIで画像を使ったボタンを作成していきます。&lt;br>
+前置きはさっさと飛ばして、本題に入りましょう。&lt;/p>
+&lt;h2 id="前提条件">
+ 前提条件
+ &lt;a class="heading-link" href="#%e5%89%8d%e6%8f%90%e6%9d%a1%e4%bb%b6">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="見出しへのリンク">&lt;/i>
+ &lt;span class="sr-only">見出しへのリンク&lt;/span>
+ &lt;/a>
+&lt;/h2>
+&lt;ul>
+&lt;li>もう既にAvaloniaのプロジェクトを作っていること。&lt;/li>
+&lt;li>ボタンにする画像を選んでいること。&lt;/li>
+&lt;/ul>
+&lt;h2 id="画像の準備">
+ 画像の準備
+ &lt;a class="heading-link" href="#%e7%94%bb%e5%83%8f%e3%81%ae%e6%ba%96%e5%82%99">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="見出しへのリンク">&lt;/i>
+ &lt;span class="sr-only">見出しへのリンク&lt;/span>
+ &lt;/a>
+&lt;/h2>
+&lt;p>私は3枚の画像を選びました。通常の見た目と、Hover時の見た目と、Click時の見た目です。1枚で全ての場合をやってもいいんですが、Userが見た目からボタンとして認識してくれない危険性があるので推奨はしません。&lt;/p>
+&lt;p>画像は&lt;code>Assets&lt;/code>フォルダに入れます。&lt;br>
+もし、&lt;code>Assets&lt;/code>フォルダがない!という場合は、&lt;code>Assets&lt;/code>フォルダを作ってから、プロジェクトファイルに&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#b0c4de;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-xml" data-lang="xml">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#76a9f9">&amp;lt;ItemGroup&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#76a9f9">&amp;lt;AvaloniaResource&lt;/span> &lt;span style="color:#cebc3a">Include=&lt;/span>&lt;span style="color:#98c379">&amp;#34;Assets\*&amp;#34;&lt;/span>&lt;span style="color:#76a9f9">/&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#76a9f9">&amp;lt;/ItemGroup&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>と追記してください。&lt;/p>
+&lt;h2 id="usercontrolを作る">
+ UserControlを作る
+ &lt;a class="heading-link" href="#usercontrol%e3%82%92%e4%bd%9c%e3%82%8b">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="見出しへのリンク">&lt;/i>
+ &lt;span class="sr-only">見出しへのリンク&lt;/span>
+ &lt;/a>
+&lt;/h2>
+&lt;p>先ずは、UserControlを作成しましょう。名前は適宜読み替えてください。&lt;/p>
+&lt;blockquote>
+&lt;p>[Visual Studio]&lt;/p>
+&lt;ol>
+&lt;li>Right click your project&amp;rsquo;s Views folder in Solution Explorer&lt;/li>
+&lt;li>Select the Add -&amp;gt; New Item menu item&lt;/li>
+&lt;li>In the dialog that appears, navigate to the &amp;ldquo;Avalonia&amp;rdquo; section in the category tree&lt;/li>
+&lt;li>Select &amp;ldquo;User Control (Avalonia)&amp;rdquo;&lt;/li>
+&lt;li>Enter TodoListView as the &amp;ldquo;Name&amp;rdquo;&lt;/li>
+&lt;li>Click the &amp;ldquo;Add&amp;rdquo; button&lt;/li>
+&lt;/ol>
+&lt;p>[.NET Core]&lt;/p></description></item></channel></rss>

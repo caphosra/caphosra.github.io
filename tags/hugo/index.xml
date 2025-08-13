@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Hugo on caphosra note</title><link>https://caphosra.net/tags/hugo/</link><description>Recent content in Hugo on caphosra note</description><generator>Hugo</generator><language>ja</language><lastBuildDate>Sun, 07 Jan 2024 14:12:07 +0900</lastBuildDate><atom:link href="https://caphosra.net/tags/hugo/index.xml" rel="self" type="application/rss+xml"/><item><title>Hugoで_index.mdの仕様を変更した話</title><link>https://caphosra.net/posts/hugo-index-override/</link><pubDate>Thu, 12 Mar 2020 10:35:31 +0900</pubDate><guid>https://caphosra.net/posts/hugo-index-override/</guid><description>&lt;p>今回は、Hugoについてです。&lt;br>
+&lt;code>_index.md&lt;/code>は標準では限られたコンテンツしか含めないので、それを改造していきたいと思います。&lt;br>
+そもそも&lt;code>_index.md&lt;/code>とは?というところにも触れるので、&lt;code>_index.md&lt;/code>と&lt;code>index.md&lt;/code>の仕様に疑問がある方は必見です。&lt;/p>
+&lt;h2 id="hugoでの_indexmd">
+ Hugoでの_index.md
+ &lt;a class="heading-link" href="#hugo%e3%81%a7%e3%81%ae_indexmd">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="見出しへのリンク">&lt;/i>
+ &lt;span class="sr-only">見出しへのリンク&lt;/span>
+ &lt;/a>
+&lt;/h2>
+&lt;p>以下のようなフォルダがサーバー上にあったとします。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#b0c4de;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-fallback" data-lang="fallback">&lt;span style="display:flex;">&lt;span>- contents
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> - old
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> * index.html
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> * old_content.html
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> * index.html
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> * content1.html
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> * content2.html
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>この時に、&lt;code>contents/&lt;/code>と&lt;code>contents/index.html&lt;/code>はアクセスしたときに同じ様に表示されます。&lt;br>
+同様に&lt;code>contents/old/&lt;/code>と&lt;code>contents/old/index.html&lt;/code>も同じ表示となります。&lt;br>
+これは、フォルダにアクセスしたときに、&lt;code>index.html&lt;/code>が存在するか探索されるからです。&lt;/p>
+&lt;p>一方で、Hugoでは、&lt;code>index.md&lt;/code>と&lt;code>_index.md&lt;/code>というこれとほぼ同様の役割を果たすものをが用意されています。&lt;br>
+ただ、これらは厳密には異なり、仕様が異なります。&lt;/p>
+&lt;p>ひとつづつ見ていきましょう。&lt;/p>
+&lt;h3 id="indexmdの仕様">
+ index.mdの仕様
+ &lt;a class="heading-link" href="#indexmd%e3%81%ae%e4%bb%95%e6%a7%98">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="見出しへのリンク">&lt;/i>
+ &lt;span class="sr-only">見出しへのリンク&lt;/span>
+ &lt;/a>
+&lt;/h3>
+&lt;p>&lt;code>index.md&lt;/code>はほとんど&lt;code>index.html&lt;/code>のようなものであると思ってもらってもいいです。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#b0c4de;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-fallback" data-lang="fallback">&lt;span style="display:flex;">&lt;span>- contents
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> - blog
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> * index.md
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>のようにファイルを配置すれば、ビルド後は、&lt;code>[servername]/blog/&lt;/code>とアクセスすることもできるし、
+&lt;code>[servername]/blog/index.html&lt;/code>とアクセスすることも出来ます。&lt;/p>
+&lt;p>ただ、&lt;code>index.md&lt;/code>には__落とし穴__が&amp;hellip;&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#b0c4de;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-fallback" data-lang="fallback">&lt;span style="display:flex;">&lt;span>- contents
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> - blog
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> - item
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> * index.md &amp;lt;- NG (index.md被りは禁止)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> * index.md &amp;lt;- OK
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> * server.md &amp;lt;- NG (server/indexかのように扱われる)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> - about
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> * index.md
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>このような配置をして、ビルドすると、&lt;code>server.md&lt;/code>と&lt;code>item/index.md&lt;/code>がビルドされません!&lt;br>
+なぜかと言うと、&lt;code>index.md&lt;/code>は &lt;strong>下層ノードでの重複が禁止&lt;/strong> されているからです。&lt;br>
+即ち、&lt;code>blog/&lt;/code>はもう既に&lt;code>index.md&lt;/code>を持っているので、子ディレクトリの&lt;code>index.md&lt;/code>はビルドされません。
+Hugoは&lt;code>server.md&lt;/code>の様なファイルを&lt;code>server/index.html&lt;/code>にビルドしようとするので&lt;code>server.md&lt;/code>もビルドされません。&lt;/p></description></item></channel></rss>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Powershell on caphosra note</title><link>https://caphosra.net/tags/powershell/</link><description>Recent content in Powershell on caphosra note</description><generator>Hugo</generator><language>ja</language><lastBuildDate>Sun, 07 Jan 2024 13:18:38 +0900</lastBuildDate><atom:link href="https://caphosra.net/tags/powershell/index.xml" rel="self" type="application/rss+xml"/><item><title>Powershellでsudoしてみたい話</title><link>https://caphosra.net/posts/powershell-sudo/</link><pubDate>Wed, 11 Dec 2019 22:28:26 +0900</pubDate><guid>https://caphosra.net/posts/powershell-sudo/</guid><description>&lt;p>今回紹介することはタイトルそのままです。&lt;br>
+PowershellではBashの&lt;code>sudo&lt;/code>のように簡単に管理者権限で実行出来るようにするコマンドがありません。&lt;br>
+そこで、それとほぼ同等なものを作りたい、というのが今回の話題です。&lt;br>
+早速、始めて行きましょう。&lt;/p>
+&lt;h2 id="手元の環境">
+ 手元の環境
+ &lt;a class="heading-link" href="#%e6%89%8b%e5%85%83%e3%81%ae%e7%92%b0%e5%a2%83">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="見出しへのリンク">&lt;/i>
+ &lt;span class="sr-only">見出しへのリンク&lt;/span>
+ &lt;/a>
+&lt;/h2>
+&lt;p>Powershell 6.2.3&lt;/p>
+&lt;p>私が使っているPowershellはWindowsに標準でインストールされている.NET Framework依存のものではなく、
+.NET Core依存のものです。これはWindowsだけでなくmacOSやLinuxでも動くのでWindows以外を使っている方もインストール出来ます。&lt;/p>
+&lt;p>以降、Powershellの実行ファイル名をpwsh.exeとしていますが、.NET Framework依存のものをお使いの方は適宜powershell.exeで読み替えてください。&lt;/p>
+&lt;h2 id="コマンドの実装方針">
+ コマンドの実装方針
+ &lt;a class="heading-link" href="#%e3%82%b3%e3%83%9e%e3%83%b3%e3%83%89%e3%81%ae%e5%ae%9f%e8%a3%85%e6%96%b9%e9%87%9d">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="見出しへのリンク">&lt;/i>
+ &lt;span class="sr-only">見出しへのリンク&lt;/span>
+ &lt;/a>
+&lt;/h2>
+&lt;p>&lt;code>sudo&lt;/code>と同等な機能をもった関数を実装し、&lt;code>sudo&lt;/code>という名前のAliasとして登録する。&lt;/p>
+&lt;h2 id="方法">
+ 方法
+ &lt;a class="heading-link" href="#%e6%96%b9%e6%b3%95">
+ &lt;i class="fa-solid fa-link" aria-hidden="true" title="見出しへのリンク">&lt;/i>
+ &lt;span class="sr-only">見出しへのリンク&lt;/span>
+ &lt;/a>
+&lt;/h2>
+&lt;p>まず、Powershellを起動し、&lt;code>$profile&lt;/code>の値を読みます。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#b0c4de;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-powershell" data-lang="powershell">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#aa89ea">pwsh&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8a93a5;font-style:italic"># PowerShell 6.2.3&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8a93a5;font-style:italic"># Copyright (c) Microsoft Corporation. All rights reserved.&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8a93a5;font-style:italic">#&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8a93a5;font-style:italic"># https://aka.ms/pscore6-docs&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8a93a5;font-style:italic"># Type &amp;#39;help&amp;#39; to get help.&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#dcaeea">$profile&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8a93a5;font-style:italic"># C:\.....\Microsoft.PowerShell_profile.ps1&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>続いて読んだパスのファイルを開きます。&lt;br>
+お好みのソフトで開きましょう。因みに私はVisual Studio Codeで開きました。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#b0c4de;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-powershell" data-lang="powershell">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#aa89ea">code&lt;/span> &lt;span style="color:#dcaeea">$profile&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>開けたら以下のようなコードを書きます。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#b0c4de;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-powershell" data-lang="powershell">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8a93a5;font-style:italic"># 管理者権限で実行する関数&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#76a9f9">function&lt;/span> &lt;span style="color:#e5c07b">SudoRun&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#abb2bf">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8a93a5;font-style:italic"># $programにコマンドを詰める&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#76a9f9">foreach&lt;/span>&lt;span style="color:#abb2bf">(&lt;/span>&lt;span style="color:#dcaeea">$arg&lt;/span> &lt;span style="color:#76a9f9">in&lt;/span> &lt;span style="color:#dcaeea">$args&lt;/span>&lt;span style="color:#abb2bf">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#abb2bf">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#dcaeea">$program&lt;/span> &lt;span style="color:#abb2bf">=&lt;/span> &lt;span style="color:#63c381">&amp;#34;&lt;/span>&lt;span style="color:#dcaeea">$program&lt;/span>&lt;span style="color:#63c381"> &lt;/span>&lt;span style="color:#dcaeea">$arg&lt;/span>&lt;span style="color:#63c381">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#abb2bf">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8a93a5;font-style:italic"># Powershellにより管理者権限で実行&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#aa89ea">pwsh&lt;/span> &lt;span style="color:#aa89ea">-command&lt;/span> &lt;span style="color:#63c381">&amp;#34;Start-Process -Verb runas &lt;/span>&lt;span style="color:#dcaeea">$program&lt;/span>&lt;span style="color:#63c381">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#abb2bf">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8a93a5;font-style:italic"># 関数をAliasとして登録する&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#e5c07b">Set-Alias&lt;/span> &lt;span style="color:#aa89ea">-Name&lt;/span> &lt;span style="color:#aa89ea">sudo&lt;/span> &lt;span style="color:#aa89ea">-Value&lt;/span> &lt;span style="color:#aa89ea">SudoRun&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>これを書いたら、そっとそのファイルとPowershellを閉じましょう。&lt;br>
+その後、Powershellを起動すると、もうあなたは&lt;code>sudo&lt;/code>をPowershellで使うことができます!&lt;/p></description></item></channel></rss>
