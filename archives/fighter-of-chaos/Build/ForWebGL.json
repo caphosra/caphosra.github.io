@@ -1,0 +1,16 @@
+{
+"companyName": "capra314cabra",
+"productName": "混沌の格闘家",
+"productVersion": "1.0",
+"dataUrl": "ForWebGL.data.unityweb",
+"wasmCodeUrl": "ForWebGL.wasm.code.unityweb",
+"wasmFrameworkUrl": "ForWebGL.wasm.framework.unityweb",
+"graphicsAPI": ["WebGL 2.0","WebGL 1.0"],
+"webglContextAttributes": {"preserveDrawingBuffer": false},
+"backgroundUrl": "ForWebGL.jpg",
+"splashScreenStyle": "Dark",
+"backgroundColor": "#FFFFFF",
+"developmentBuild": false,
+"multithreading": false,
+"unityVersion": "2019.2.17f1"
+}

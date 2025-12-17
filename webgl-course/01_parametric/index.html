@@ -1,0 +1,98 @@
+<!--
+    引用元: https://utokyo-iscg-2025-assigment-m1-spline.glitch.me/
+    一部改変
+-->
+
+<!doctype html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title id="title">[utokyo-iscg-2025 task1] Bezier curve</title>
+        <script src="https://rawcdn.githack.com/toji/gl-matrix/v3.3.0/dist/gl-matrix-min.js"></script>
+        <script src="https://bbcdn.githack.com/kenshi84/legacygl.js/raw/master/gl-matrix-util.js"></script>
+        <script src="https://bbcdn.githack.com/kenshi84/legacygl.js/raw/master/legacygl.js"></script>
+        <script src="https://bbcdn.githack.com/kenshi84/legacygl.js/raw/master/drawutil.js"></script>
+        <script src="https://bbcdn.githack.com/kenshi84/legacygl.js/raw/master/camera.js"></script>
+        <script src="https://bbcdn.githack.com/kenshi84/legacygl.js/raw/master/util.js"></script>
+        <script src="https://bbcdn.githack.com/kenshi84/legacygl.js/raw/master/glu.js"></script>
+        <script src="dist/bundle.js"></script>
+    </head>
+    <body>
+        <h2>
+            <script type="text/javascript">
+                document.write(document.getElementById("title").innerHTML);
+            </script>
+        </h2>
+
+        <h3>説明</h3>
+
+        バーンスタイン基底関数を用いてn次ベジェ曲線を描画するものを作成した。既存のコードベースを書き換えることで、制御点の数を自由に変更できるようにした。実装:
+        <a
+            href="https://github.com/caphosra/webgl-course/tree/main/01_parametric"
+            >GitHub</a
+        >
+
+        <canvas
+            id="canvas"
+            width="640"
+            height="480"
+            style="border: 1px solid #000000"
+        ></canvas>
+        <table>
+            <!--
+                制御点の数を変えられるフィールドを追加
+            -->
+            <tr>
+                <td>Number of Control Points:</td>
+                <td colspan="2">
+                    <input
+                        type="number"
+                        id="input_controlpoints"
+                        step="1"
+                        min="3"
+                        max="30"
+                        value="3"
+                    />
+                </td>
+            </tr>
+            <tr>
+                <td>Number of Steps:</td>
+                <td colspan="2">
+                    <input
+                        type="number"
+                        id="input_numsteps"
+                        step="1"
+                        min="2"
+                        value="20"
+                    />
+                </td>
+            </tr>
+            <tr>
+                <td>Show Control Points:</td>
+                <td colspan="2">
+                    <input
+                        type="checkbox"
+                        id="input_show_controlpoints"
+                        checked
+                    />
+                </td>
+            </tr>
+            <tr>
+                <td>Show Sample Points:</td>
+                <td colspan="2">
+                    <input
+                        type="checkbox"
+                        id="input_show_samplepoints"
+                        checked
+                    />
+                </td>
+            </tr>
+        </table>
+        <h3>Usage:</h3>
+        <ul>
+            <li>Drag: Move Control Points</li>
+            <li>Alt+Drag: Camera Pan</li>
+            <li>Alt+Shift+drag: Camera Zoom</li>
+        </ul>
+    </body>
+</html>
